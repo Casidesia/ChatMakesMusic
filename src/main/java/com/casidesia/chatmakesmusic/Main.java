@@ -104,13 +104,6 @@ public class Main {
         Clef clef = objectFactory.createClef();
         attributes.getClef().add(clef);
 
-
-        Note note = objectFactory.createNote();
-        measure.getNoteOrBackupOrForward().add(note);
-        Pitch pitch = objectFactory.createPitch();
-        note.setPitch(pitch);
-        pitch.setStep(Step.C);
-
         return score;
     }
 
@@ -120,10 +113,9 @@ public class Main {
             return false;
 
         if (line.contains("time")) {
-            ObjectFactory factory = new ObjectFactory();
-            ScorePartwise.Part.Measure measure = factory.createScorePartwisePartMeasure();
+            ScorePartwise.Part.Measure measure = objectFactory.createScorePartwisePartMeasure();
             part.getMeasure().add(measure);
-            Attributes attributes = factory.createAttributes();
+            Attributes attributes = objectFactory.createAttributes();
             measure.getNoteOrBackupOrForward().add(attributes);
 
             //line appears in file as, ex: "time:3/4"
@@ -169,7 +161,7 @@ public class Main {
             }
              type.setValue(noteLength);
             note.setPitch(pitch);
-            note.setDuration(new BigDecimal(1));
+            note.setDuration(new BigDecimal(1.75));
             //measure.getNoteOrBackupOrForward().add(note);
 
             if (countNum < Integer.valueOf(topNum))
