@@ -17,6 +17,8 @@ import java.util.logging.SimpleFormatter;
 public class Main {
     private final static Logger logger = Logger.getLogger(Main.class.getName());
     private static final ObjectFactory objectFactory = new ObjectFactory();
+    private static final Attributes attributes = objectFactory.createAttributes();
+
 
     private static final NoteData[] noteData = new NoteData[]
             {
@@ -29,13 +31,10 @@ public class Main {
     private static final DirectionData directionData =
             new DirectionData("quarter", 1, "c. 100-120", YesNo.YES, new BigDecimal(110));
 
-    static ScorePartwise.Part.Measure meas = objectFactory.createScorePartwisePartMeasure();
-    static int countNum = 0;
-    static String topNum;
-    static String bottomNum;
-    static Rest rest = new Rest();
-    static int measureNumber = 1;
+    static int timeBeats;
     static int octave;
+    static int currentMeasureNum = 1;
+    static int currentBeatNum = 0;
 
     public static void main(String[] args) throws IOException {
         initLogger();
@@ -43,12 +42,12 @@ public class Main {
 
         ScorePartwise score = initXMLFile();
         ScorePartwise.Part part = score.getPart().get(0);
+        ScorePartwise.Part.Measure measure = createFirstMeasure();
+        part.getMeasure().add(measure);
 
         String inputFilename = args[0];
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFilename))) {
-            while (addToXML(reader.readLine(), part)) ;
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            while (addToXML(reader.readLine(), measure)) ;
         }
 
         marshalScore(score);
@@ -62,120 +61,115 @@ public class Main {
     }
 
     public static ScorePartwise initXMLFile() {
-        ScorePartwise score = objectFactory.createScorePartwise();
+        // <score-partwise>
+        ScorePartwise scorePartwise = objectFactory.createScorePartwise();
 
-        // Movement
-        score.setMovementTitle("Chats Song");
-
+        // Title
+        scorePartwise.setMovementTitle("Chats Song");
+        // Composer
         Identification identification = objectFactory.createIdentification();
-        score.setIdentification(identification);
         TypedText typedText = objectFactory.createTypedText();
         typedText.setValue("The Composer");
         typedText.setType("composer");
         identification.getCreator().add(typedText);
+        scorePartwise.setIdentification(identification);
 
+        // PartList
         PartList partList = objectFactory.createPartList();
-        score.setPartList(partList);
+        scorePartwise.setPartList(partList);
 
+        // ScorePart
         ScorePart scorePart = objectFactory.createScorePart();
-        scorePart.setId("P1");
         partList.getPartGroupOrScorePart().add(scorePart);
+        scorePart.setId("P1");
+
         PartName partName = objectFactory.createPartName();
-        partName.setValue("Music");
         scorePart.setPartName(partName);
+        partName.setValue("Music");
 
         ScorePartwise.Part part = objectFactory.createScorePartwisePart();
+        scorePartwise.getPart().add(part);
         part.setId(scorePart);
-        score.getPart().add(part);
 
-        // Example from HelloWorld
+        return scorePartwise;
+    }
 
+    private static ScorePartwise.Part.Measure createFirstMeasure() {
+        // First Measure
         ScorePartwise.Part.Measure measure = objectFactory.createScorePartwisePartMeasure();
-        Attributes attributes = objectFactory.createAttributes();
-        //measure.getNoteOrBackupOrForward().add(attributes);
-        //attributes.setDivisions(new BigDecimal(1));
+        measure.setNumber("1");
 
-        // Key key = objectFactory.createKey();
-        //attributes.getKey().add(key);
-        // key.setFifths(new BigInteger("0"));
-        // Time time = objectFactory.createTime();
-        // attributes.getTime().add(time);
+        measure.getNoteOrBackupOrForward().add(attributes);
+        attributes.setDivisions(new BigDecimal(1));
+
+        Key key = objectFactory.createKey();
+        attributes.getKey().add(key);
+        key.setFifths(new BigInteger("0"));
 
         Clef clef = objectFactory.createClef();
         attributes.getClef().add(clef);
+        clef.setSign(ClefSign.G);
+        clef.setLine(new BigInteger("2"));
 
-        return score;
+        return measure;
     }
 
-    private static boolean addToXML(String line, ScorePartwise.Part part) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        NoteType type = objectFactory.createNoteType();
-        if (line == null)
+    private static boolean addToXML(String line, ScorePartwise.Part.Measure measure) {
+        if (line == null) {
             return false;
+        }
 
         if (line.contains("time")) {
-            ScorePartwise.Part.Measure measure = objectFactory.createScorePartwisePartMeasure();
-            part.getMeasure().add(measure);
-            Attributes attributes = objectFactory.createAttributes();
-            measure.getNoteOrBackupOrForward().add(attributes);
-
-            //line appears in file as, ex: "time:3/4"
-            topNum = line.substring(5, 6);
-            bottomNum = line.substring(7);
-            Time time = objectFactory.createTime();
-            attributes.getTime().add(time);
-            time.getTimeSignature().add(objectFactory.createTimeBeats(topNum));
-            time.getTimeSignature().add(objectFactory.createTimeBeatType(bottomNum));
-
+            parseTimeSignature(line);
             logger.info("Time Signature set.");
         }
-//        else if(line.contains("bpm")){
-//
-//           // logger.info("BPM set.");
-//        }
+        else if (line.contains("bpm")) {
+            logger.info("BPM set.");
+        }
         else if (line.contains("Octave")) {
             octave = Integer.parseInt(getInfoAfterColon(line));
-            Pitch pitch = objectFactory.createPitch();
-            pitch.setOctave(octave);
             logger.info("Octave set.");
         } else if (line.contains("Clock")) { //do nothing for now
         } else {
-            ScorePartwise.Part.Measure measure = objectFactory.createScorePartwisePartMeasure();
-            Note note = objectFactory.createNote();
-           // note.setType(type);
-            measure.getNoteOrBackupOrForward().add(note);
-            Pitch pitch = objectFactory.createPitch();
-
             String noteLength = getInfoBeforeColon(line);
             String noteLetter = getInfoAfterColon(line);
             logger.info("length: " + noteLength + ", Note: " + noteLetter);
+
+            Note note = objectFactory.createNote();
+            measure.getNoteOrBackupOrForward().add(note);
+
+            NoteType type = objectFactory.createNoteType();
             note.setType(type);
+
+            Pitch pitch = objectFactory.createPitch();
+            pitch.setOctave(octave);
+            note.setPitch(pitch);
+
             if (noteLetter.equals("rest")) {
-               // rest.setMeasure(YesNo.YES);
-                //type.setValue();
+//                rest.setMeasure(YesNo.YES);
+//                type.setValue();
             } else {
-
-
                 Step step = org.audiveris.proxymusic.Step.valueOf((noteLetter));
-                logger.info("Step: "+step.value().toString());
+                logger.info("Step: " + step);
                 pitch.setStep(step);
             }
-             type.setValue(noteLength);
-            note.setPitch(pitch);
-            note.setDuration(new BigDecimal(1.75));
-            //measure.getNoteOrBackupOrForward().add(note);
-
-            if (countNum < Integer.valueOf(topNum))
-                countNum++;
-            else {
-                meas.getNoteOrBackupOrForward().add(true);
-                countNum = 0;
-                measureNumber++;
-                part.getMeasure().add(measure);
-                //measure.setNumber(String.valueOf(measureNumber));
-            }
+            note.setDuration(new BigDecimal(1));
+            type.setValue(noteLength);
         }
         return true;
     }
+
+    private static void parseTimeSignature(String line) {
+        // line appears in file as, ex: "time:3/4"
+        String topNum = line.substring(5, 6);
+        timeBeats = Integer.parseInt(topNum);
+        String bottomNum = line.substring(7);
+        Time time = objectFactory.createTime();
+        time.getTimeSignature().add(objectFactory.createTimeBeats(topNum));
+        time.getTimeSignature().add(objectFactory.createTimeBeatType(bottomNum));
+        attributes.getTime().add(time);
+    }
+
 
     public static String getInfoAfterColon(String arg) {
         return arg.substring(arg.lastIndexOf(":") + 1);
