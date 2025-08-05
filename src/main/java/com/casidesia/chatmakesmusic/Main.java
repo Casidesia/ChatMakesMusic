@@ -153,7 +153,6 @@ public class Main {
             String noteLength = getInfoBeforeColon(line);
             String noteLetter = getInfoAfterColon(line);
             logger.info("length: " + noteLength + ", Note: " + noteLetter);
-            type.setValue(noteLength);
             note.setType(type);
             if (noteLetter.equals("rest")) {
                // rest.setMeasure(YesNo.YES);
@@ -168,7 +167,7 @@ public class Main {
              type.setValue(noteLength);
             note.setPitch(pitch);
             note.setDuration(new BigDecimal(1));
-            measure.getNoteOrBackupOrForward().add(note);
+            //measure.getNoteOrBackupOrForward().add(note);
 
             if (countNum < Integer.valueOf(topNum))
                 countNum++;
@@ -179,31 +178,6 @@ public class Main {
                 part.getMeasure().add(measure);
                 //measure.setNumber(String.valueOf(measureNumber));
             }
-
-           // part.getMeasure().add(meas);
-            // Type
-
-               // part.getMeasure().add(meas);
-                meas.setNumber("" + countNum);
-
-                // Note 1 ---
-              //  note = objectFactory.createNote();
-                meas.getNoteOrBackupOrForward().add(note);
-
-                // Pitch
-               // pitch = objectFactory.createPitch();
-                note.setPitch(pitch);
-               // pitch.setStep(Step.E);
-                pitch.setOctave(octave);
-
-                // Duration
-               // note.setDuration(new BigDecimal(4));
-
-                // Type
-               // type = objectFactory.createNoteType();
-                //type.setValue("whole");
-                note.setType(type);
-            //meas.setNumber("" + 1);
         }
         return true;
     }
