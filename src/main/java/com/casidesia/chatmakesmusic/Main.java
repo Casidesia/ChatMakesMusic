@@ -7,6 +7,8 @@ import java.io.*;
 import java.lang.String;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -42,8 +44,8 @@ public class Main {
         ScorePartwise score = initXMLFile();
         ScorePartwise.Part part = score.getPart().get(0);
 
-        String path = "src/main/resources/streammusic.txt";
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+        String inputFilename = args[0];
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFilename))) {
             while (addToXML(reader.readLine(), part)) ;
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -53,7 +55,8 @@ public class Main {
     }
 
     private static void initLogger() throws IOException {
-        FileHandler fh = new FileHandler("ChatMakesMusic.log");
+        Files.createDirectories(Path.of("output"));
+        FileHandler fh = new FileHandler("output/ChatMakesMusic.log");
         fh.setFormatter(new SimpleFormatter());
         logger.addHandler(fh);
     }
@@ -225,7 +228,7 @@ public class Main {
         long start = System.currentTimeMillis();
 
         //  Finally, marshal the proxy
-        File xmlFile = new File("src/test/java/testFile" + System.currentTimeMillis() + ".musicxml");
+        File xmlFile = new File("output/testFile" + System.currentTimeMillis() + ".musicxml");
 
         try (OutputStream os = new FileOutputStream(xmlFile)) {
             Marshalling.marshal(score, os, true, 2);
