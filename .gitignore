@@ -28,4 +28,6 @@ bin/
 ### Mac OS ###
 .DS_Store
 # Project exclude paths
-/target/
+
+### Project Files ###
+/target/!/ChatMakesMusic.log

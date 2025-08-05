@@ -1,22 +1,21 @@
-import com.sun.jdi.request.StepRequest;
+package com.casidesia.chatmakesmusic;
+
 import org.audiveris.proxymusic.*;
 import org.audiveris.proxymusic.util.Marshalling;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.String;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public class Main {
     private final static Logger logger = Logger.getLogger(Main.class.getName());
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
+    private static final ObjectFactory objectFactory = new ObjectFactory();
+
     private static final NoteData[] noteData = new NoteData[]
             {
                     // 0
@@ -27,113 +26,88 @@ public class Main {
                     new NoteData(Step.G, 4, new BigDecimal(4), "whole")};
     private static final DirectionData directionData =
             new DirectionData("quarter", 1, "c. 100-120", YesNo.YES, new BigDecimal(110));
-    static ObjectFactory factory = new ObjectFactory();
-    // Allocate the score partwise
-    static ScorePartwise scorePartwise = factory.createScorePartwise();
-    // Identification
-    static Identification identification = factory.createIdentification();
-    // PartList
-    static PartList partList = factory.createPartList();
-    static PartName partName = factory.createPartName();
-    // ScorePart in scorePartwise
-    static ScorePartwise.Part part = factory.createScorePartwisePart();
-    // Measure
-    static ScorePartwise.Part.Measure measure = factory.createScorePartwisePartMeasure();
-    // Attributes
-    static Attributes attributes = factory.createAttributes();
-    // Key
-    static Key key = factory.createKey();
-    // Time
-    static Time time = factory.createTime();
-    // Clef
-    static Clef clef = factory.createClef();
-    // Note
-    static Note note = factory.createNote();
-    // Pitch
-    static Pitch pitch = factory.createPitch();
-    // Type
-    static NoteType type = factory.createNoteType();
-    static Metronome metronome = factory.createMetronome();
-    static Direction
-    direction = factory.createDirection();
-    static DirectionType directionType = factory.createDirectionType();
-    // Scorepart in partList
-    static ScorePart scorePart = factory.createScorePart();
-    static ScorePartwise.Part.Measure meas = factory.createScorePartwisePartMeasure();
+
+    static ScorePartwise.Part.Measure meas = objectFactory.createScorePartwisePartMeasure();
     static int countNum = 0;
     static String topNum;
     static String bottomNum;
     static Rest rest = new Rest();
     static int measureNumber = 1;
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
+        initLogger();
+        logger.info("Application successfully started.");
 
+        ScorePartwise score = initXMLFile();
 
-        FileHandler fh;
-        try {
-
-
-            fh = new FileHandler("ChatMakesMusic.log");
-            logger.addHandler(fh);
-            SimpleFormatter formatter = new SimpleFormatter();
-            fh.setFormatter(formatter);
-
-            logger.info("Application successfully started.");
-
-            String path = "D:\\Creative\\Vtuber\\Assets\\Stream\\streammusic.txt";
-            InputStream is = new FileInputStream(path);
-            try (Scanner sc = new Scanner(is, StandardCharsets.UTF_8)) {
-                initXMLFile();
-                while (sc.hasNextLine()) {
-
-                        AddToXML(sc.nextLine());
-                    }
-
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            }
-            tryMarshal();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (Exception e) {
+        String path = "D:\\Creative\\Vtuber\\Assets\\Stream\\streammusic.txt";
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            while(addToXML(reader.readLine(), score));
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+
+        marshalScore(score);
     }
 
-    public static void initXMLFile() {
+    private static void initLogger() throws IOException {
+        FileHandler fh = new FileHandler("ChatMakesMusic.log");
+        fh.setFormatter(new SimpleFormatter());
+        logger.addHandler(fh);
+    }
+
+    public static ScorePartwise initXMLFile() {
+        ScorePartwise score = objectFactory.createScorePartwise();
+
         // Movement
-        scorePartwise.setMovementTitle("Chats Song");
+        score.setMovementTitle("Chats Song");
 
-        scorePartwise.setIdentification(identification);
-
-        TypedText typedText = factory.createTypedText();
+        Identification identification = objectFactory.createIdentification();
+        score.setIdentification(identification);
+        TypedText typedText = objectFactory.createTypedText();
         typedText.setValue("The Composer");
         typedText.setType("composer");
         identification.getCreator().add(typedText);
-        scorePartwise.setPartList(partList);
 
-        partList.getPartGroupOrScorePart().add(scorePart);
+        PartList partList = objectFactory.createPartList();
+        score.setPartList(partList);
+
+        ScorePart scorePart = objectFactory.createScorePart();
         scorePart.setId("P1");
-
-        scorePart.setPartName(partName);
+        partList.getPartGroupOrScorePart().add(scorePart);
+        PartName partName = objectFactory.createPartName();
         partName.setValue("Music");
-        scorePartwise.getPart().add(part);
-        part.setId(scorePart);
+        scorePart.setPartName(partName);
 
+        ScorePartwise.Part part = objectFactory.createScorePartwisePart();
+        part.setId(scorePart);
+        score.getPart().add(part);
+
+
+        // Example from HelloWorld
+
+        ScorePartwise.Part.Measure measure = objectFactory.createScorePartwisePartMeasure();
        // part.getMeasure().add(measure);
         //measure.setNumber(String.valueOf(measureNumber));
+        Attributes attributes = objectFactory.createAttributes();
         measure.getNoteOrBackupOrForward().add(attributes);
         // Divisions
         attributes.setDivisions(new BigDecimal(1));
+
+        Key key = objectFactory.createKey();
         attributes.getKey().add(key);
         key.setFifths(new BigInteger("0"));
+        Time time = objectFactory.createTime();
         attributes.getTime().add(time);
+
+        Clef clef = objectFactory.createClef();
         attributes.getClef().add(clef);
         //  clef.setSign(ClefSign.G);
         // clef.setLine(new BigInteger("2"));
 
+        Note note = objectFactory.createNote();
         measure.getNoteOrBackupOrForward().add(note);
+        Pitch pitch = objectFactory.createPitch();
         note.setPitch(pitch);
         pitch.setStep(Step.C);
 
@@ -143,65 +117,77 @@ public class Main {
         //type.setValue("whole");
         //note.setType(type);
 
-        //direction.getDirectionType().add(directionType);
+//        Direction direction = objectFactory.createDirection();
+//        DirectionType directionType = objectFactory.createDirectionType();
+//        direction.getDirectionType().add(directionType);
 
+        return score;
     }
 
-    private static void AddToXML(String arg) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    private static boolean addToXML(String line, ScorePartwise score) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        if (line == null)
+            return false;
 
-
-        if (arg.contains("time")) {
+        if (line.contains("time")) {
             //line appears in file as, ex: "time:3/4"
-            topNum = arg.substring(5, 6);
-            bottomNum = arg.substring(7);
-            time.getTimeSignature().add(factory.createTimeBeats(topNum));
-            time.getTimeSignature().add(factory.createTimeBeatType(bottomNum));
+            topNum = line.substring(5, 6);
+            bottomNum = line.substring(7);
+            Time time = objectFactory.createTime();
+            time.getTimeSignature().add(objectFactory.createTimeBeats(topNum));
+            time.getTimeSignature().add(objectFactory.createTimeBeatType(bottomNum));
+
             logger.info("Time Signature set.");
         }
-//        else if(arg.contains("bpm")){
-//            String bpm = getInfoAfterColon(arg);
+//        else if(line.contains("bpm")){
+//            String bpm = getInfoAfterColon(line);
+//            Metronome metronome = objectFactory.createMetronome();
 //            metronome.setBeatUnit(directionData.beatUnit);
 //            for (int i = 0; i < directionData.dots; i++) {
-//                metronome.getBeatUnitDot().add(factory.createEmpty());
+//                metronome.getBeatUnitDot().add(objectFactory.createEmpty());
 //            }
 //
 //            // Doesn't seem to be recognized by Finale or MuseScore
-//            //        BeatUnitTied but = factory.createBeatUnitTied();
+//            //        BeatUnitTied but = objectFactory.createBeatUnitTied();
 //            //        but.setBeatUnit("eighth");
 //            //        metronome.getBeatUnitTied().add(but);
 //
-//            PerMinute perMinute = factory.createPerMinute();
+//            PerMinute perMinute = objectFactory.createPerMinute();
 //            perMinute.setValue(directionData.perMinute);
 //            metronome.setPerMinute(perMinute);
 //            metronome.setParentheses(directionData.parentheses);
+//            DirectionType directionType = objectFactory.createDirectionType();
 //            directionType.setMetronome(metronome);
 //           // logger.info("BPM set.");
 //        }
-        else if (arg.contains("Octave")) {
-            String octave = getInfoAfterColon(arg);
+        else if (line.contains("Octave")) {
+            String octave = getInfoAfterColon(line);
+            Pitch pitch = objectFactory.createPitch();
             pitch.setOctave(Integer.parseInt(octave));
             logger.info("Octave set.");
-        } else if (arg.contains("Clock")) { //do nothing for now
+        } else if (line.contains("Clock")) { //do nothing for now
         } else {
-
+            ScorePartwise.Part.Measure measure = objectFactory.createScorePartwisePartMeasure();
+            Note note = objectFactory.createNote();
             measure.getNoteOrBackupOrForward().add(note);
-            String noteLenth = getInfoBeforeColon(arg);
-            String noteLetter = getInfoAfterColon(arg);
+            String noteLenth = getInfoBeforeColon(line);
+            String noteLetter = getInfoAfterColon(line);
             logger.info("lenth: " + noteLenth + ", Note: " + noteLetter);
 
             if (noteLetter.equals("rest")) {
                 rest.setMeasure(YesNo.YES);
                 //type.setValue();
             } else {
-                Class<?> Step = Class.forName("org.audiveris.proxymusic.Step");
+                Pitch pitch = objectFactory.createPitch();
                 Step step = org.audiveris.proxymusic.Step.valueOf((noteLetter));
                 pitch.setStep(step);
             }
            // type.setValue(noteLenth);
-            type = factory.createNoteType();
+            NoteType type = objectFactory.createNoteType();
             note.setType(type);
             note.setDuration(new BigDecimal(1));
             measure.getNoteOrBackupOrForward().add(note);
+
+            ScorePartwise.Part part = score.getPart().get(0);
             if (countNum<Integer.valueOf(topNum))
                 countNum++;
             else {
@@ -214,6 +200,7 @@ public class Main {
             part.getMeasure().add(meas);
             //meas.setNumber("" + 1);
         }
+        return true;
     }
 
     public static String getInfoAfterColon(String arg) {
@@ -228,20 +215,21 @@ public class Main {
         return subString;
     }
 
-    public static void tryMarshal()
-            throws Exception {
+    public static void marshalScore(ScorePartwise score) {
         logger.info("Calling tryMarshal...");
-        //  Finally, marshal the proxy
-
-        File xmlFile = new File("testFile" + System.currentTimeMillis() + ".musicxml");
-        OutputStream os = new FileOutputStream(xmlFile);
         long start = System.currentTimeMillis();
 
-        Marshalling.marshal(scorePartwise, os, true, 2);
+        //  Finally, marshal the proxy
+        File xmlFile = new File("testFile" + System.currentTimeMillis() + ".musicxml");
 
-        logger.info("Marshalling done in {} ms");
-        logger.info("Score exported to {}" + xmlFile);
-        os.close();
+        try (OutputStream os = new FileOutputStream(xmlFile)) {
+            Marshalling.marshal(score, os, true, 2);
+        } catch (IOException | Marshalling.MarshallingException e) {
+            logger.severe(e.toString());
+            throw new RuntimeException(e);
+        }
+        logger.info("Marshalling done in %d ms".formatted(System.currentTimeMillis() - start));
+        logger.info("Score exported to " + xmlFile);
     }
 
     //~ Inner Classes ------------------------------------------------------------------------------
