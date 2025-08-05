@@ -1,0 +1,30 @@
+Aug 05, 2025 11:59:36 AM Main main
+INFO: Application successfully started.
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: Time Signature set.
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: Octave set.
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: lenth: whole, Note: D
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: lenth: half, Note: rest
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: lenth: half, Note: A
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: lenth: sixteenth, Note: F
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: lenth: whole, Note: D
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: lenth: sixteenth, Note: C
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: lenth: sixteenth, Note: A
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: lenth: sixteenth, Note: F
+Aug 05, 2025 11:59:36 AM Main AddToXML
+INFO: lenth: half, Note: F
+Aug 05, 2025 11:59:36 AM Main tryMarshal
+INFO: Calling tryMarshal...
+Aug 05, 2025 11:59:36 AM Main tryMarshal
+INFO: Marshalling done in {} ms
+Aug 05, 2025 11:59:36 AM Main tryMarshal
+INFO: Score exported to {}testFile1754409576345.musicxml
