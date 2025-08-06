@@ -32,7 +32,8 @@ public class Main {
             new DirectionData("quarter", 1, "c. 100-120", YesNo.YES, new BigDecimal(110));
 
     static int timeBeats;
-    static int octave;
+    private static int octave = 4;
+    private static int totalDuration = 0;
     static int currentMeasureNum = 1;
     static int currentBeatNum = 0;
 
@@ -49,6 +50,7 @@ public class Main {
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFilename))) {
             while (addToXML(reader.readLine(), measure)) ;
         }
+        attributes.setDivisions(new BigDecimal(totalDuration * 4));
 
         marshalScore(score);
     }
@@ -100,7 +102,6 @@ public class Main {
         measure.setNumber("1");
 
         measure.getNoteOrBackupOrForward().add(attributes);
-        attributes.setDivisions(new BigDecimal(1));
 
         Key key = factory.createKey();
         attributes.getKey().add(key);
@@ -138,9 +139,6 @@ public class Main {
             Note note = factory.createNote();
             measure.getNoteOrBackupOrForward().add(note);
 
-            NoteType type = factory.createNoteType();
-            note.setType(type);
-
             if (noteLetter.equals("rest")) {
                 note.setRest(factory.createRest());
             } else {
@@ -151,9 +149,14 @@ public class Main {
                 pitch.setOctave(octave);
                 note.setPitch(pitch);
             }
-            note.setDuration(new BigDecimal(1));
-            type.setValue(noteLength);
 
+            int duration = getDurationFromNoteLength(noteLength);
+            note.setDuration(new BigDecimal(duration));
+            totalDuration += duration;
+
+            NoteType type = factory.createNoteType();
+            note.setType(type);
+            type.setValue(noteLength);
         }
         return true;
     }
@@ -180,6 +183,17 @@ public class Main {
         if (index != -1)
             subString = arg.substring(0, index);
         return subString;
+    }
+
+    private static int getDurationFromNoteLength(String noteLength) {
+        return switch (noteLength) {
+            case "16th" -> 1;
+            case "eighth" -> 2;
+            case "quarter" -> 4;
+            case "half" -> 8;
+            case "whole" -> 16;
+            default -> 0;
+        };
     }
 
     public static void marshalScore(ScorePartwise score) {

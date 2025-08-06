@@ -1,13 +1,14 @@
 Clock: 7/28/2025 2:44 PM:
 time:3/4
-Octave:5
 whole:D
-half:rest
+quarter:rest
 half:A
 eighth:F
+eighth:rest
+quarter:E
 whole:D
 Octave:3
-sixteenth:C
-sixteenth:A
-sixteenth:F
+16th:C
+16th:A
+16th:F
 half:F
