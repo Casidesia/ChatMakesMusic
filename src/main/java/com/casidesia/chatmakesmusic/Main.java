@@ -16,8 +16,8 @@ import java.util.logging.SimpleFormatter;
 
 public class Main {
     private final static Logger logger = Logger.getLogger(Main.class.getName());
-    private static final ObjectFactory objectFactory = new ObjectFactory();
-    private static final Attributes attributes = objectFactory.createAttributes();
+    private static final ObjectFactory factory = new ObjectFactory();
+    private static final Attributes attributes = factory.createAttributes();
 
 
     private static final NoteData[] noteData = new NoteData[]
@@ -62,32 +62,32 @@ public class Main {
 
     public static ScorePartwise initXMLFile() {
         // <score-partwise>
-        ScorePartwise scorePartwise = objectFactory.createScorePartwise();
+        ScorePartwise scorePartwise = factory.createScorePartwise();
 
         // Title
         scorePartwise.setMovementTitle("Chats Song");
         // Composer
-        Identification identification = objectFactory.createIdentification();
-        TypedText typedText = objectFactory.createTypedText();
+        Identification identification = factory.createIdentification();
+        TypedText typedText = factory.createTypedText();
         typedText.setValue("The Composer");
         typedText.setType("composer");
         identification.getCreator().add(typedText);
         scorePartwise.setIdentification(identification);
 
         // PartList
-        PartList partList = objectFactory.createPartList();
+        PartList partList = factory.createPartList();
         scorePartwise.setPartList(partList);
 
         // ScorePart
-        ScorePart scorePart = objectFactory.createScorePart();
+        ScorePart scorePart = factory.createScorePart();
         partList.getPartGroupOrScorePart().add(scorePart);
         scorePart.setId("P1");
 
-        PartName partName = objectFactory.createPartName();
+        PartName partName = factory.createPartName();
         scorePart.setPartName(partName);
         partName.setValue("Music");
 
-        ScorePartwise.Part part = objectFactory.createScorePartwisePart();
+        ScorePartwise.Part part = factory.createScorePartwisePart();
         scorePartwise.getPart().add(part);
         part.setId(scorePart);
 
@@ -96,17 +96,17 @@ public class Main {
 
     private static ScorePartwise.Part.Measure createFirstMeasure() {
         // First Measure
-        ScorePartwise.Part.Measure measure = objectFactory.createScorePartwisePartMeasure();
+        ScorePartwise.Part.Measure measure = factory.createScorePartwisePartMeasure();
         measure.setNumber("1");
 
         measure.getNoteOrBackupOrForward().add(attributes);
         attributes.setDivisions(new BigDecimal(1));
 
-        Key key = objectFactory.createKey();
+        Key key = factory.createKey();
         attributes.getKey().add(key);
         key.setFifths(new BigInteger("0"));
 
-        Clef clef = objectFactory.createClef();
+        Clef clef = factory.createClef();
         attributes.getClef().add(clef);
         clef.setSign(ClefSign.G);
         clef.setLine(new BigInteger("2"));
@@ -135,25 +135,25 @@ public class Main {
             String noteLetter = getInfoAfterColon(line);
             logger.info("length: " + noteLength + ", Note: " + noteLetter);
 
-            Note note = objectFactory.createNote();
+            Note note = factory.createNote();
             measure.getNoteOrBackupOrForward().add(note);
 
-            NoteType type = objectFactory.createNoteType();
+            NoteType type = factory.createNoteType();
             note.setType(type);
 
-
             if (noteLetter.equals("rest")) {
-                note.setRest(objectFactory.createRest());
+                note.setRest(factory.createRest());
             } else {
                 Step step = org.audiveris.proxymusic.Step.valueOf((noteLetter));
                 logger.info("Step: " + step);
-                Pitch pitch = objectFactory.createPitch();
+                Pitch pitch = factory.createPitch();
                 pitch.setStep(step);
                 pitch.setOctave(octave);
                 note.setPitch(pitch);
             }
             note.setDuration(new BigDecimal(1));
             type.setValue(noteLength);
+
         }
         return true;
     }
@@ -163,9 +163,9 @@ public class Main {
         String topNum = line.substring(5, 6);
         timeBeats = Integer.parseInt(topNum);
         String bottomNum = line.substring(7);
-        Time time = objectFactory.createTime();
-        time.getTimeSignature().add(objectFactory.createTimeBeats(topNum));
-        time.getTimeSignature().add(objectFactory.createTimeBeatType(bottomNum));
+        Time time = factory.createTime();
+        time.getTimeSignature().add(factory.createTimeBeats(topNum));
+        time.getTimeSignature().add(factory.createTimeBeatType(bottomNum));
         attributes.getTime().add(time);
     }
 
