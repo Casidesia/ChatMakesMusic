@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -18,18 +17,6 @@ public class Main {
     private final static Logger logger = Logger.getLogger(Main.class.getName());
     private static final ObjectFactory factory = new ObjectFactory();
     private static final Attributes attributes = factory.createAttributes();
-
-
-    private static final NoteData[] noteData = new NoteData[]
-            {
-                    // 0
-                    new NoteData(Step.C, 4, new BigDecimal(4), "whole"),
-                    // 1
-                    new NoteData(Step.E, 4, new BigDecimal(4), "whole"),
-                    // 2
-                    new NoteData(Step.G, 4, new BigDecimal(4), "whole")};
-    private static final DirectionData directionData =
-            new DirectionData("quarter", 1, "c. 100-120", YesNo.YES, new BigDecimal(110));
 
     static int timeBeats;
     private static int octave = 4;
@@ -123,11 +110,9 @@ public class Main {
         if (line.contains("time")) {
             parseTimeSignature(line);
             logger.info("Time Signature set.");
-        }
-        else if (line.contains("bpm")) {
+        } else if (line.contains("bpm")) {
             logger.info("BPM set.");
-        }
-        else if (line.contains("Octave")) {
+        } else if (line.contains("Octave")) {
             octave = Integer.parseInt(getInfoAfterColon(line));
             logger.info("Octave set.");
         } else if (line.contains("Clock")) { //do nothing for now
@@ -212,118 +197,4 @@ public class Main {
         logger.info("Marshalling done in %d ms".formatted(System.currentTimeMillis() - start));
         logger.info("Score exported to " + xmlFile);
     }
-
-    //~ Inner Classes ------------------------------------------------------------------------------
-    private static class AttrData {
-        //~ Instance fields ------------------------------------------------------------------------
-
-        final BigDecimal divisions;
-
-        final BigInteger fifths;
-
-        final String beats;
-
-        final String beatType;
-
-        final ClefSign clefSign;
-
-        final BigInteger clefLine;
-
-        //~ Constructors ---------------------------------------------------------------------------
-        public AttrData(BigDecimal divisions,
-                        BigInteger fifths,
-                        String beats,
-                        String beatType,
-                        ClefSign clefSign,
-                        BigInteger clefLine) {
-            this.divisions = divisions;
-            this.fifths = fifths;
-            this.beats = beats;
-            this.beatType = beatType;
-            this.clefSign = clefSign;
-            this.clefLine = clefLine;
-        }
-    }
-
-    private static class DirectionData {
-        final String beatUnit;
-
-        final int dots;
-
-        final String perMinute;
-
-        final YesNo parentheses;
-
-        final BigDecimal tempo;
-
-        public DirectionData(String beatUnit,
-                             int dots,
-                             String perMinute,
-                             YesNo parentheses,
-                             BigDecimal tempo) {
-            this.beatUnit = beatUnit;
-            this.dots = dots;
-            this.perMinute = perMinute;
-            this.parentheses = parentheses;
-            this.tempo = tempo;
-        }
-    }
-
-    private static class MeasData {
-        //~ Instance fields ------------------------------------------------------------------------
-
-        final String number;
-
-        final List<Object> objects;
-
-        //~ Constructors ---------------------------------------------------------------------------
-        public MeasData(String number,
-                        List<Object> objects) {
-            this.number = number;
-            this.objects = objects;
-        }
-    }
-
-    private static class NoteData {
-        //~ Instance fields ------------------------------------------------------------------------
-
-        final Step pitchStep;
-
-        final int pitchOctave;
-
-        final BigDecimal duration;
-
-        final String type;
-
-        //~ Constructors ---------------------------------------------------------------------------
-        public NoteData(Step pitchStep,
-                        int pitchOctave,
-                        BigDecimal duration,
-                        String type) {
-            this.pitchStep = pitchStep;
-            this.pitchOctave = pitchOctave;
-            this.duration = duration;
-            this.type = type;
-        }
-    }
-
-    private static class PartData {
-        //~ Instance fields ------------------------------------------------------------------------
-
-        final String id;
-
-        final String name;
-
-        final List<MeasData> measures;
-
-        //~ Constructors ---------------------------------------------------------------------------
-        public PartData(String id,
-                        String name,
-                        List<MeasData> measures) {
-            this.id = id;
-            this.name = name;
-            this.measures = measures;
-        }
-    }
 }
-
