@@ -4,7 +4,7 @@ Octave:5
 whole:D
 half:rest
 half:A
-sixteenth:F
+eighth:F
 whole:D
 Octave:3
 sixteenth:C

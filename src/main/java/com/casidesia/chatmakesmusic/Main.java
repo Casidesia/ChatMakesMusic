@@ -141,17 +141,16 @@ public class Main {
             NoteType type = objectFactory.createNoteType();
             note.setType(type);
 
-            Pitch pitch = objectFactory.createPitch();
-            pitch.setOctave(octave);
-            note.setPitch(pitch);
 
             if (noteLetter.equals("rest")) {
-//                rest.setMeasure(YesNo.YES);
-//                type.setValue();
+                note.setRest(objectFactory.createRest());
             } else {
                 Step step = org.audiveris.proxymusic.Step.valueOf((noteLetter));
                 logger.info("Step: " + step);
+                Pitch pitch = objectFactory.createPitch();
                 pitch.setStep(step);
+                pitch.setOctave(octave);
+                note.setPitch(pitch);
             }
             note.setDuration(new BigDecimal(1));
             type.setValue(noteLength);
