@@ -23,6 +23,7 @@ public class Main {
     private static int totalDuration = 0;
     static int currentMeasureNum = 1;
     static int currentBeatNum = 0;
+    static int noteNumber = 0;
 
     public static void main(String[] args) throws IOException {
         initLogger();
@@ -106,7 +107,6 @@ public class Main {
         if (line == null) {
             return false;
         }
-
         if (line.contains("time")) {
             parseTimeSignature(line);
             logger.info("Time Signature set.");
@@ -138,7 +138,16 @@ public class Main {
             int duration = getDurationFromNoteLength(noteLength);
             note.setDuration(new BigDecimal(duration));
             totalDuration += duration;
-
+           /* if(currentBeatNum > 20) {
+                currentMeasureNum++;
+                measure.setNumber(String.valueOf(currentMeasureNum));
+                measure.getNoteOrBackupOrForward().add(attributes);
+                Clef clef = factory.createClef();
+                attributes.getClef().add(clef);
+                clef.setSign(ClefSign.G);
+                clef.setLine(new BigInteger("2"));
+                currentBeatNum=1;
+            } else currentBeatNum++;*/
             NoteType type = factory.createNoteType();
             note.setType(type);
             type.setValue(noteLength);
@@ -148,12 +157,12 @@ public class Main {
 
     private static void parseTimeSignature(String line) {
         // line appears in file as, ex: "time:3/4"
-        String topNum = line.substring(5, 6);
-        timeBeats = Integer.parseInt(topNum);
-        String bottomNum = line.substring(7);
+//        String topNum = line.substring(5, 6);
+//        timeBeats = Integer.parseInt(topNum);
+//        String bottomNum = line.substring(7);
         Time time = factory.createTime();
-        time.getTimeSignature().add(factory.createTimeBeats(topNum));
-        time.getTimeSignature().add(factory.createTimeBeatType(bottomNum));
+        time.getTimeSignature().add(factory.createTimeBeats("4")); //automatically assigning for now
+        time.getTimeSignature().add(factory.createTimeBeatType("4"));
         attributes.getTime().add(time);
     }
 
