@@ -2,17 +2,17 @@ package com.casidesia.chatmakesmusic;
 
 import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
 import com.casidesia.chatmakesmusic.enums.NoteLength;
-import com.casidesia.chatmakesmusic.util.LogFactory;
 import org.audiveris.proxymusic.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.String;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.logging.Logger;
 
 public class ScoreBuilder {
+    private static final Logger log = LoggerFactory.getLogger(ScoreBuilder.class);
     private static final ObjectFactory factory = new ObjectFactory();
-    private static final Logger log = LogFactory.getLogger();
 
     private static class Constants {
         private static final String SONG_TITLE = "Chats Song";

@@ -5,8 +5,9 @@ import com.casidesia.chatmakesmusic.data.ParsedNote;
 import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
 import com.casidesia.chatmakesmusic.data.ParsedRest;
 import com.casidesia.chatmakesmusic.enums.NoteLength;
-import com.casidesia.chatmakesmusic.util.LogFactory;
 import org.audiveris.proxymusic.Step;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -14,11 +15,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class StreamMusicParser {
-    private static final Logger log = LogFactory.getLogger();
+    private static final Logger log = LoggerFactory.getLogger(StreamMusicParser.class);
 
     // Parsing-related constants
     public static class Constants {
@@ -103,7 +102,7 @@ public class StreamMusicParser {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void logAndThrowIllegalArgument(String logString) {
         IllegalArgumentException e = new IllegalArgumentException(logString);
-        log.log(Level.SEVERE, "Error parsing input file: " + inputFilename, e);
+        log.error("Error parsing input file: " + inputFilename, e);
         throw e;
     }
 }
