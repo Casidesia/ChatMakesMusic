@@ -1,12 +1,13 @@
 package com.casidesia.chatmakesmusic;
 
 import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
+import com.casidesia.chatmakesmusic.enums.NoteLength;
 import com.casidesia.chatmakesmusic.util.LogFactory;
-import org.audiveris.proxymusic.Note;
-import org.audiveris.proxymusic.ObjectFactory;
-import org.audiveris.proxymusic.ScorePartwise;
-import org.audiveris.proxymusic.Time;
+import org.audiveris.proxymusic.*;
 
+import java.lang.String;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.logging.Logger;
 
 public class ScoreBuilder {
@@ -18,21 +19,83 @@ public class ScoreBuilder {
         private static final String COMPOSER = "The Composer";
     }
 
-    private final ScorePartwise score = new ScorePartwise();
+    // Global values, initialized in constructor
+    private final ScorePartwise score;
+    private final ScorePartwise.Part part;
+    private final Attributes attributes;
 
+    // Measure tracking
+    private ScorePartwise.Part.Measure currentMeasure;
+    private int currentMeasureNum;
+    private int currentMeasureDivisions;
+    private int totalDivisionsPerMeasure;
 
+    public ScoreBuilder() {
+        this(Constants.SONG_TITLE, Constants.COMPOSER);
+    }
 
-    public void setTimeSignature(Time timeSignature) {
-        // Take current measure, get attributes, set time signature
+    public ScoreBuilder(String title, String composer) {
+        score = factory.createScorePartwise();
+        score.setMovementTitle(title);
+        TypedText typedText = factory.createTypedText();
+        typedText.setValue(composer);
+        typedText.setType("composer");
+        Identification identification = factory.createIdentification();
+        identification.getCreator().add(typedText);
+        score.setIdentification(identification);
+        score.setPartList(factory.createPartList());
+
+        ScorePart scorePart = factory.createScorePart();
+        scorePart.setId("P1");
+        PartName partName = factory.createPartName();
+        partName.setValue("Music");
+        scorePart.setPartName(partName);
+        score.getPartList().getPartGroupOrScorePart().add(scorePart);
+
+        part = factory.createScorePartwisePart();
+        part.setId(scorePart);
+        score.getPart().add(part);
+
+        attributes = factory.createAttributes();
+        Key key = factory.createKey();
+        key.setFifths(BigInteger.ZERO);
+        Clef clef = factory.createClef();
+        clef.setSign(ClefSign.G);
+        clef.setLine(BigInteger.TWO);
+        attributes.getKey().add(key);
+
+        currentMeasure = createMeasure();
+    }
+
+    private ScorePartwise.Part.Measure createMeasure() {
+        ScorePartwise.Part.Measure measure = factory.createScorePartwisePartMeasure();
+        measure.setNumber(String.valueOf(++currentMeasureNum));
+        measure.getNoteOrBackupOrForward().add(attributes);
+        part.getMeasure().add(measure);
+        return measure;
+    }
+
+    public void setTimeSignature(int timeSignatureUpper, int timeSignatureLower) {
+        Time timeSignature = factory.createTime();
+        timeSignature.getTimeSignature().add(factory.createTimeBeats(String.valueOf(timeSignatureUpper)));
+        timeSignature.getTimeSignature().add(factory.createTimeBeatType(String.valueOf(timeSignatureLower)));
+        attributes.getTime().add(timeSignature);
+
+        totalDivisionsPerMeasure = timeSignatureUpper * timeSignatureLower * NoteLength.QUARTER.getDuration();
+        attributes.setDivisions(BigDecimal.valueOf(totalDivisionsPerMeasure));
     }
 
     public void addNote(ParsedNoteOrRest parsedNote) {
-        Note note = parsedNote.toXmlNote();
+        currentMeasure.getNoteOrBackupOrForward().add(parsedNote.toXmlNote());
 
-        // Add to measure, etc. etc.
+        currentMeasureDivisions += parsedNote.getDuration();
+        // TODO: Check measure boundaries and create new measures when necessary
     }
 
     public ScorePartwise getScore() {
+        // TODO: Remove the following line once measures are implemented
+        attributes.setDivisions(BigDecimal.valueOf(currentMeasureDivisions));
+
         return score;
     }
 }

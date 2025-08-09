@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ChatMakesMusic" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.casidesia.chatmakesmusic.ChatMakesMusic" />
+    <module name="ChatMakesMusic" />
+    <option name="PROGRAM_PARAMETERS" value="src/main/resources/streammusic.txt" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

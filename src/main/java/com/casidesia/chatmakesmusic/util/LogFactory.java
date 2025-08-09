@@ -15,7 +15,7 @@ public class LogFactory {
 
     public static <T> Logger getLoggerForClass(Class<T> clazz) {
         try {
-            Files.createDirectory(Path.of(LOG_DIRECTORY));
+            Files.createDirectories(Path.of(LOG_DIRECTORY));
             Logger logger = Logger.getLogger(clazz.getName());
             logger.addHandler(new FileHandler(LOG_FILE_NAME));
             return logger;

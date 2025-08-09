@@ -10,7 +10,7 @@ public record ParsedRest(NoteLength length) implements ParsedNoteOrRest {
     @Override
     public Note toXmlNote() {
         Note note = new Note();
-        note.setDuration(BigDecimal.valueOf(length.getDuration()));
+        length.addDurationAndTypeToNote(note);
         note.setRest(new Rest());
         return note;
     }

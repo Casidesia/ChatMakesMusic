@@ -1,5 +1,10 @@
 package com.casidesia.chatmakesmusic.enums;
 
+import org.audiveris.proxymusic.Note;
+import org.audiveris.proxymusic.NoteType;
+
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 public enum NoteLength {
@@ -30,5 +35,12 @@ public enum NoteLength {
 
     public int getDuration() {
         return duration;
+    }
+
+    public void addDurationAndTypeToNote(Note note) {
+        note.setDuration(BigDecimal.valueOf(duration));
+        NoteType type = new NoteType();
+        type.setValue(parsedName);
+        note.setType(type);
     }
 }

@@ -72,8 +72,8 @@ public class StreamMusicParser {
         String[] tokens = timeSignatureString.split(Constants.TIME_SIGNATURE_DELIMITER);
         if (tokens.length != 2)
             logAndThrowIllegalArgument("Invalid time signature: " + timeSignatureString);
-        timeSignatureLower = tryParseInt(tokens[0], "timeSignatureLower");
         timeSignatureUpper = tryParseInt(tokens[0], "timeSignatureUpper");
+        timeSignatureLower = tryParseInt(tokens[1], "timeSignatureLower");
     }
 
     private void parseOctave(String octaveString) {

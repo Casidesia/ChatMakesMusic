@@ -11,7 +11,7 @@ public record ParsedNote(NoteLength length, Step step, int octave) implements Pa
     @Override
     public Note toXmlNote() {
         Note note = new Note();
-        note.setDuration(BigDecimal.valueOf(length.getDuration()));
+        length.addDurationAndTypeToNote(note);
         Pitch pitch = new Pitch();
         pitch.setStep(step);
         pitch.setOctave(octave);
