@@ -69,17 +69,26 @@ public class StreamMusicParser {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void parseTime(String timeSignatureString) {
         String[] tokens = timeSignatureString.split(Constants.TIME_SIGNATURE_DELIMITER);
+        log.info("Current tokens for parsed time signature string" + Arrays.stream(tokens).toList());
+
         if (tokens.length != 2)
             logAndThrowIllegalArgument("Invalid time signature: " + timeSignatureString);
+
         timeSignatureUpper = tryParseInt(tokens[0], "timeSignatureUpper");
+        log.info("Time signature upper variable set to: "+ timeSignatureUpper);
+
         timeSignatureLower = tryParseInt(tokens[1], "timeSignatureLower");
+        log.info("Time signature lower variable set to: "+ timeSignatureLower);
+
     }
 
     private void parseOctave(String octaveString) {
         currentOctave = tryParseInt(octaveString, "Octave");
+        log.info("Current octave variable set to: " + currentOctave);
     }
 
     private int tryParseInt(String value, String fieldName) {
+       log.info("Parsing:: field name: " + fieldName + ", value: " + value);
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
@@ -89,10 +98,15 @@ public class StreamMusicParser {
     }
 
     private void parseNote(NoteLength noteLength, String pitchOrRestString) {
-        if (Constants.REST.equals(pitchOrRestString))
+        log.info("Parsing note:: "+ "Note length: " + noteLength + ", pitch or rest string: "+ pitchOrRestString);
+        if (Constants.REST.equals(pitchOrRestString)) {
             notes.add(new ParsedRest(noteLength));
-        else if (Constants.STEPS.contains(pitchOrRestString))
+            log.info("Rest added: " + notes.getLast().getDuration());
+        }
+        else if (Constants.STEPS.contains(pitchOrRestString)) {
             notes.add(new ParsedNote(noteLength, Step.fromValue(pitchOrRestString), currentOctave));
+            log.info("Note added: " + notes.getLast().toString());
+        }
         else
             logAndThrowIllegalArgument("Invalid note: " + pitchOrRestString);
     }

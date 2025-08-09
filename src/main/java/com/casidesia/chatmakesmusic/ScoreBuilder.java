@@ -59,10 +59,17 @@ public class ScoreBuilder {
         attributes = factory.createAttributes();
         Key key = factory.createKey();
         key.setFifths(BigInteger.ZERO);
+        log.info("Current fifths for key: " + key.getFifths().toString());
+
         Clef clef = factory.createClef();
         clef.setSign(ClefSign.G);
-        clef.setLine(BigInteger.TWO);
+        log.info("Current set clef sign: " + clef.getSign().toString());
+
         attributes.getKey().add(key);
+        attributes.getClef().add(clef);
+
+        log.info("Attribute for key set to: "+ attributes.getKey().getFirst().getFifths().toString()+ " fifths.");
+        log.info("Attribute for Clef set to: "+ attributes.getClef().getFirst().getSign().toString());
 
         currentMeasure = createMeasure();
     }
@@ -77,18 +84,30 @@ public class ScoreBuilder {
 
     public void setTimeSignature(int timeSignatureUpper, int timeSignatureLower) {
         Time timeSignature = factory.createTime();
+
         timeSignature.getTimeSignature().add(factory.createTimeBeats(String.valueOf(timeSignatureUpper)));
         timeSignature.getTimeSignature().add(factory.createTimeBeatType(String.valueOf(timeSignatureLower)));
+        log.info("Time Signature set to: "+ timeSignature.getTimeSignature().get(0).getValue()+"/" +
+                timeSignature.getTimeSignature().get(1).getValue());
+
         attributes.getTime().add(timeSignature);
+        log.info("attributes Time Signature set to: "+ attributes.getTime().get(0).getTimeSignature().get(0).getValue() +
+                "/" + attributes.getTime().get(0).getTimeSignature().get(1).getValue());
 
         totalDivisionsPerMeasure = timeSignatureUpper * timeSignatureLower * NoteLength.QUARTER.getDuration();
+        log.info("Current total divisions per mesasure: "+ totalDivisionsPerMeasure);
+
         attributes.setDivisions(BigDecimal.valueOf(totalDivisionsPerMeasure));
+        log.info("Division attribute set to: "+ attributes.getDivisions());
     }
 
     public void addNote(ParsedNoteOrRest parsedNote) {
+        log.info("Current parsed note: " + parsedNote);
+
         currentMeasure.getNoteOrBackupOrForward().add(parsedNote.toXmlNote());
 
         currentMeasureDivisions += parsedNote.getDuration();
+        log.info("Current Measure Divisions after addition: " + currentMeasureDivisions);
         // TODO: Check measure boundaries and create new measures when necessary
     }
 

@@ -43,4 +43,12 @@ public enum NoteLength {
         type.setValue(parsedName);
         note.setType(type);
     }
+
+    @Override
+    public String toString() {
+        return "NoteLength{" +
+                "parsedName='" + parsedName + '\'' +
+                ", duration=" + duration +
+                '}';
+    }
 }
