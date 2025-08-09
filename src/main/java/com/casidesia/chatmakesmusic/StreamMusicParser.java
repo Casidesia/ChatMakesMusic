@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class StreamMusicParser {
-    private static final Logger log = LogFactory.getLoggerForClass(StreamMusicParser.class);
+    private static final Logger log = LogFactory.getLogger();
 
     // Parsing-related constants
     public static class Constants {

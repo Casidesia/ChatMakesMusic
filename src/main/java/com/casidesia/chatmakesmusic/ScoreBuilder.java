@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 public class ScoreBuilder {
     private static final ObjectFactory factory = new ObjectFactory();
-    private static final Logger log = LogFactory.getLoggerForClass(ScoreBuilder.class);
+    private static final Logger log = LogFactory.getLogger();
 
     private static class Constants {
         private static final String SONG_TITLE = "Chats Song";

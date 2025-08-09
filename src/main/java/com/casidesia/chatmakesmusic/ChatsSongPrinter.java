@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ChatsSongPrinter {
-    private static final Logger log = LogFactory.getLoggerForClass(ChatsSongPrinter.class);
+    private static final Logger log = LogFactory.getLogger();
 
     private final String outputFilename;
 
