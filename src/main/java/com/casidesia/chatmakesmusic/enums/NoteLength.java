@@ -3,7 +3,6 @@ package com.casidesia.chatmakesmusic.enums;
 import org.audiveris.proxymusic.Note;
 import org.audiveris.proxymusic.NoteType;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
@@ -27,10 +26,6 @@ public enum NoteLength {
             .filter(length -> length.parsedName.equalsIgnoreCase(name))
             .findFirst()
             .orElse(null);
-    }
-
-    public String getParsedName() {
-        return parsedName;
     }
 
     public int getDuration() {

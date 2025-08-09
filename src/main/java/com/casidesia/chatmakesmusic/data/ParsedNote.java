@@ -5,8 +5,6 @@ import org.audiveris.proxymusic.Note;
 import org.audiveris.proxymusic.Pitch;
 import org.audiveris.proxymusic.Step;
 
-import java.math.BigDecimal;
-
 public record ParsedNote(NoteLength length, Step step, int octave) implements ParsedNoteOrRest {
     @Override
     public Note toXmlNote() {

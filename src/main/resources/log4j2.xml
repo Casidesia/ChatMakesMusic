@@ -5,17 +5,15 @@
                        https://logging.apache.org/xml/ns
                        https://logging.apache.org/xml/ns/log4j-config-2.xsd">
     <Appenders>
-        <Console name="CONSOLE">
-            <JsonTemplateLayout/>
-        </Console>
+        <Console name="CONSOLE"/>
         <File name="LOG" fileName="output/ChatMakesMusic.log"/>
     </Appenders>
     <Loggers>
         <Logger name="com.casidesia.chatmakesmusic" level="INFO">
             <AppenderRef ref="LOG"/>
         </Logger>
-        <Root level="WARN">
-            <AppenderRef ref="CONSOLE"/>
+        <Root>
+            <AppenderRef ref="CONSOLE" level="WARN"/>
         </Root>
     </Loggers>
 </Configuration>

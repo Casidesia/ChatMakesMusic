@@ -22,7 +22,7 @@ public class ChatsSongPrinter {
         try (OutputStream os = new FileOutputStream(outputFilename)) {
             Marshalling.marshal(score, os, true, 2);
         } catch (IOException | Marshalling.MarshallingException e) {
-            log.error("Error writing score to file " + outputFilename, e);
+            log.error("Error writing score to file {}", outputFilename, e);
             throw e;
         }
     }
