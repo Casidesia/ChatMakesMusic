@@ -1,5 +1,6 @@
 package com.casidesia.chatmakesmusic;
 
+import com.casidesia.chatmakesmusic.data.AttributesBuilder;
 import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
 import org.audiveris.proxymusic.*;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ public class ScoreBuilder {
         private static final String COMPOSER = "The Composer";
     }
 
+    // TODO: DELETE THIS
     private static class CurrentAttributes {
         private ScorePartwise.Part.Measure currentMeasure;
         private int currentMeasureNum;
@@ -29,6 +31,7 @@ public class ScoreBuilder {
     private final ScorePartwise score;
     private final ScorePartwise.Part part;
     private final CurrentAttributes currentAttributes = new CurrentAttributes();
+    private final AttributesBuilder attributesBuilder = new AttributesBuilder();
     private final Attributes attributes;
 
     public ScoreBuilder() {
