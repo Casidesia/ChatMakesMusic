@@ -1,7 +1,6 @@
 package com.casidesia.chatmakesmusic;
 
 import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
-import com.casidesia.chatmakesmusic.enums.NoteLength;
 import org.audiveris.proxymusic.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ public class ScoreBuilder {
         private ScorePartwise.Part.Measure currentMeasure;
         private int currentMeasureNum;
         private int currentMeasureDivisions;
-        private int totalDivisionsPerMeasure;
+        private int maxDivisionsPerMeasure;
     }
 
     // Global values, initialized in constructor
@@ -94,27 +93,46 @@ public class ScoreBuilder {
         attributes.getTime().add(timeSignature);
         log.info("attributes Time Signature set to: {}/{}", attributes.getTime().get(0).getTimeSignature().get(0).getValue(), attributes.getTime().get(0).getTimeSignature().get(1).getValue());
 
-        currentAttributes.totalDivisionsPerMeasure = timeSignatureUpper * timeSignatureLower * NoteLength.QUARTER.getDuration();
-        log.info("Current total divisions per measure: {}", currentAttributes.totalDivisionsPerMeasure);
+        currentAttributes.maxDivisionsPerMeasure = timeSignatureUpper * timeSignatureLower;
+        log.info("Current total divisions per measure: {}", currentAttributes.maxDivisionsPerMeasure);
 
-        attributes.setDivisions(BigDecimal.valueOf(currentAttributes.totalDivisionsPerMeasure));
+        attributes.setDivisions(BigDecimal.valueOf(currentAttributes.maxDivisionsPerMeasure));
         log.info("Division attribute set to: {}", attributes.getDivisions());
     }
 
     public void addNote(ParsedNoteOrRest parsedNote) {
         log.info("Current parsed note: {}", parsedNote);
 
-        currentAttributes.currentMeasure.getNoteOrBackupOrForward().add(parsedNote.toXmlNote());
 
-        currentAttributes.currentMeasureDivisions += parsedNote.getDuration();
-        log.info("Current Measure Divisions after addition: {}", currentAttributes.currentMeasureDivisions);
-        // TODO: Check measure boundaries and create new measures when necessary
+        if(currentAttributes.maxDivisionsPerMeasure < currentAttributes.currentMeasureDivisions + parsedNote.getDuration()) {
+            int finishCurrentMeasure = currentAttributes.maxDivisionsPerMeasure - currentAttributes.currentMeasureDivisions;
+            int firstNoteOfNewMeasure = parsedNote.getDuration() - finishCurrentMeasure ;
+
+            Note finishMeasureNote = parsedNote.toXmlNote();
+            finishMeasureNote.setDuration(BigDecimal.valueOf(finishCurrentMeasure));
+            currentAttributes.currentMeasure.getNoteOrBackupOrForward().add(finishMeasureNote);
+
+            currentAttributes.currentMeasure = createMeasure();
+
+
+            Note newMeasureNote = parsedNote.toXmlNote();
+            newMeasureNote.setDuration(BigDecimal.valueOf(finishCurrentMeasure));
+            currentAttributes.currentMeasure.getNoteOrBackupOrForward().add(newMeasureNote);
+
+            currentAttributes.currentMeasureDivisions = firstNoteOfNewMeasure;
+
+        }else {
+            currentAttributes.currentMeasure.getNoteOrBackupOrForward().add(parsedNote.toXmlNote());
+            currentAttributes.currentMeasureDivisions += parsedNote.getDuration();
+            log.info("Current Measure Divisions after addition: {}", currentAttributes.currentMeasureDivisions);
+        }
+
+
+
+
     }
 
     public ScorePartwise getScore() {
-        // TODO: Remove the following line once measures are implemented
-        attributes.setDivisions(BigDecimal.valueOf(currentAttributes.currentMeasureDivisions));
-
         return score;
     }
 }
