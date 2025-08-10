@@ -19,16 +19,18 @@ public class ScoreBuilder {
         private static final String COMPOSER = "The Composer";
     }
 
+    private static class CurrentAttributes {
+        private ScorePartwise.Part.Measure currentMeasure;
+        private int currentMeasureNum;
+        private int currentMeasureDivisions;
+        private int totalDivisionsPerMeasure;
+    }
+
     // Global values, initialized in constructor
     private final ScorePartwise score;
     private final ScorePartwise.Part part;
+    private final CurrentAttributes currentAttributes = new CurrentAttributes();
     private final Attributes attributes;
-
-    // Measure tracking
-    private ScorePartwise.Part.Measure currentMeasure;
-    private int currentMeasureNum;
-    private int currentMeasureDivisions;
-    private int totalDivisionsPerMeasure;
 
     public ScoreBuilder() {
         this(Constants.SONG_TITLE, Constants.COMPOSER);
@@ -71,12 +73,12 @@ public class ScoreBuilder {
         log.info("Attribute for key set to: {} fifths.", attributes.getKey().getFirst().getFifths().toString());
         log.info("Attribute for Clef set to: {}", attributes.getClef().getFirst().getSign().toString());
 
-        currentMeasure = createMeasure();
+        currentAttributes.currentMeasure = createMeasure();
     }
 
     private ScorePartwise.Part.Measure createMeasure() {
         ScorePartwise.Part.Measure measure = factory.createScorePartwisePartMeasure();
-        measure.setNumber(String.valueOf(++currentMeasureNum));
+        measure.setNumber(String.valueOf(++currentAttributes.currentMeasureNum));
         measure.getNoteOrBackupOrForward().add(attributes);
         part.getMeasure().add(measure);
         return measure;
@@ -92,26 +94,26 @@ public class ScoreBuilder {
         attributes.getTime().add(timeSignature);
         log.info("attributes Time Signature set to: {}/{}", attributes.getTime().get(0).getTimeSignature().get(0).getValue(), attributes.getTime().get(0).getTimeSignature().get(1).getValue());
 
-        totalDivisionsPerMeasure = timeSignatureUpper * timeSignatureLower * NoteLength.QUARTER.getDuration();
-        log.info("Current total divisions per measure: {}", totalDivisionsPerMeasure);
+        currentAttributes.totalDivisionsPerMeasure = timeSignatureUpper * timeSignatureLower * NoteLength.QUARTER.getDuration();
+        log.info("Current total divisions per measure: {}", currentAttributes.totalDivisionsPerMeasure);
 
-        attributes.setDivisions(BigDecimal.valueOf(totalDivisionsPerMeasure));
+        attributes.setDivisions(BigDecimal.valueOf(currentAttributes.totalDivisionsPerMeasure));
         log.info("Division attribute set to: {}", attributes.getDivisions());
     }
 
     public void addNote(ParsedNoteOrRest parsedNote) {
         log.info("Current parsed note: {}", parsedNote);
 
-        currentMeasure.getNoteOrBackupOrForward().add(parsedNote.toXmlNote());
+        currentAttributes.currentMeasure.getNoteOrBackupOrForward().add(parsedNote.toXmlNote());
 
-        currentMeasureDivisions += parsedNote.getDuration();
-        log.info("Current Measure Divisions after addition: {}", currentMeasureDivisions);
+        currentAttributes.currentMeasureDivisions += parsedNote.getDuration();
+        log.info("Current Measure Divisions after addition: {}", currentAttributes.currentMeasureDivisions);
         // TODO: Check measure boundaries and create new measures when necessary
     }
 
     public ScorePartwise getScore() {
         // TODO: Remove the following line once measures are implemented
-        attributes.setDivisions(BigDecimal.valueOf(currentMeasureDivisions));
+        attributes.setDivisions(BigDecimal.valueOf(currentAttributes.currentMeasureDivisions));
 
         return score;
     }

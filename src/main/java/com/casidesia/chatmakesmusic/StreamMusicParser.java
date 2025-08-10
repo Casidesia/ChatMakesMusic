@@ -1,10 +1,9 @@
 package com.casidesia.chatmakesmusic;
 
-import com.casidesia.chatmakesmusic.data.ParseResult;
 import com.casidesia.chatmakesmusic.data.ParsedNote;
-import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
 import com.casidesia.chatmakesmusic.data.ParsedRest;
 import com.casidesia.chatmakesmusic.enums.NoteLength;
+import org.audiveris.proxymusic.ScorePartwise;
 import org.audiveris.proxymusic.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,32 +18,30 @@ public class StreamMusicParser {
     private static final Logger log = LoggerFactory.getLogger(StreamMusicParser.class);
 
     // Parsing-related constants
-    public static class Constants {
+    private static class Constants {
         private static final List<String> STEPS = Arrays.stream(Step.values()).map(Step::name).toList();
         private static final String REST = "rest";
         private static final String TIME_SIGNATURE_DELIMITER = "/";
         private static final String LINE_DELIMITER = ":";
 
-        private static final int DEFAULT_TIME_UPPER = 4;
-        private static final int DEFAULT_TIME_LOWER = 4;
         private static final int DEFAULT_OCTAVE = 4;
     }
 
+
+    private final ScoreBuilder scoreBuilder;
     private final String inputFilename;
-    private int timeSignatureUpper = Constants.DEFAULT_TIME_UPPER;
-    private int timeSignatureLower = Constants.DEFAULT_TIME_LOWER;
     private int currentOctave = Constants.DEFAULT_OCTAVE;
-    private final List<ParsedNoteOrRest> notes = new ArrayList<>();
 
     public StreamMusicParser(String inputFilename) {
+        scoreBuilder = new ScoreBuilder();
         this.inputFilename = inputFilename;
     }
 
-    public ParseResult parseFile() throws IOException {
+    public ScorePartwise parseFile() throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFilename))) {
             reader.lines().forEach(this::parseLine);
         }
-        return new ParseResult(timeSignatureUpper, timeSignatureLower, notes);
+        return scoreBuilder.getScore();
     }
 
     private void parseLine(String line) {
@@ -74,12 +70,13 @@ public class StreamMusicParser {
         if (tokens.length != 2)
             logAndThrowIllegalArgument("Invalid time signature: " + timeSignatureString);
 
-        timeSignatureUpper = tryParseInt(tokens[0], "timeSignatureUpper");
+        int timeSignatureUpper = tryParseInt(tokens[0], "timeSignatureUpper");
         log.info("Time signature upper variable set to: {}", timeSignatureUpper);
 
-        timeSignatureLower = tryParseInt(tokens[1], "timeSignatureLower");
+        int timeSignatureLower = tryParseInt(tokens[1], "timeSignatureLower");
         log.info("Time signature lower variable set to: {}", timeSignatureLower);
 
+        scoreBuilder.setTimeSignature(timeSignatureUpper, timeSignatureLower);
     }
 
     private void parseOctave(String octaveString) {
@@ -100,12 +97,14 @@ public class StreamMusicParser {
     private void parseNote(NoteLength noteLength, String pitchOrRestString) {
         log.info("Parsing note: Note length: {}, pitch or rest string: {}", noteLength, pitchOrRestString);
         if (Constants.REST.equals(pitchOrRestString)) {
-            notes.add(new ParsedRest(noteLength));
-            log.info("Rest added: {}", notes.getLast().getDuration());
+            ParsedRest parsedRest = new ParsedRest(noteLength);
+            scoreBuilder.addNote(parsedRest);
+            log.info("Rest added: {}", parsedRest.getDuration());
         }
         else if (Constants.STEPS.contains(pitchOrRestString)) {
-            notes.add(new ParsedNote(noteLength, Step.fromValue(pitchOrRestString), currentOctave));
-            log.info("Note added: {}", notes.getLast().toString());
+            ParsedNote parsedNote = new ParsedNote(noteLength, Step.fromValue(pitchOrRestString), currentOctave);
+            scoreBuilder.addNote(parsedNote);
+            log.info("Note added: {}", parsedNote);
         }
         else
             logAndThrowIllegalArgument("Invalid note: " + pitchOrRestString);
