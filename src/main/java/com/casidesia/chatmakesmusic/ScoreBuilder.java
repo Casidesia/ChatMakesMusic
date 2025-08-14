@@ -9,14 +9,17 @@ import org.slf4j.LoggerFactory;
 import java.lang.String;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
 
 public class ScoreBuilder {
     private static final Logger log = LoggerFactory.getLogger(ScoreBuilder.class);
     private static final ObjectFactory factory = new ObjectFactory();
 
     private static class Constants {
-        private static final String SONG_TITLE = "Chats Song";
-        private static final String COMPOSER = "The Composer";
+        private static final LocalDate d = LocalDate.now();
+
+        private static final String SONG_TITLE = "Chat's Song (" + d + ")";
+        private static final String COMPOSER = "Casidesia's Chat (" + d + ")";
     }
 
     // TODO: DELETE THIS
