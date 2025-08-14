@@ -94,8 +94,8 @@ public class ScoreBuilder {
         log.info("Time Signature set to: {}/{}", timeSignature.getTimeSignature().get(0).getValue(), timeSignature.getTimeSignature().get(1).getValue());
 
         attributes.getTime().add(timeSignature);
-        log.info("attributes Time Signature set to: {}/{}", attributes.getTime().get(0).getTimeSignature().get(0).getValue(), attributes.getTime().get(0).getTimeSignature().get(1).getValue());
-
+        log.info("attributes Time Signature set to: {}/{}", attributes.getTime().getLast().getTimeSignature().get(0).getValue(), attributes.getTime().getLast().getTimeSignature().get(1).getValue());
+        //currentAttributes.currentMeasure.getNoteOrBackupOrForward().add
         currentAttributes.maxDivisionsPerMeasure = timeSignatureUpper * timeSignatureLower;
         log.info("Current total divisions per measure: {}", currentAttributes.maxDivisionsPerMeasure);
 
