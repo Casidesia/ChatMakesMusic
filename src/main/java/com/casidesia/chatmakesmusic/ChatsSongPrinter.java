@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ChatsSongPrinter {
     private static final Logger log = LoggerFactory.getLogger(ChatsSongPrinter.class);
@@ -19,6 +21,9 @@ public class ChatsSongPrinter {
     }
 
     public void printScoreToFile(ScorePartwise score) throws Marshalling.MarshallingException, IOException {
+        Files.createDirectories(Path.of("output"));
+        Files.createFile(Path.of(outputFilename));
+
         try (OutputStream os = new FileOutputStream(outputFilename)) {
             Marshalling.marshal(score, os, true, 2);
         } catch (IOException | Marshalling.MarshallingException e) {
