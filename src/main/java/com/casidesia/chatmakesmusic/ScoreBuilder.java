@@ -1,6 +1,6 @@
 package com.casidesia.chatmakesmusic;
 
-import com.casidesia.chatmakesmusic.data.AttributesBuilder;
+import com.casidesia.chatmakesmusic.data.AttributesHolder;
 import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
 import org.audiveris.proxymusic.*;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class ScoreBuilder {
     private final ScorePartwise score;
     private final ScorePartwise.Part part;
     private final CurrentAttributes currentAttributes = new CurrentAttributes();
-    private final AttributesBuilder attributesBuilder = new AttributesBuilder();
+    private final AttributesHolder attributesBuilder = new AttributesHolder();
     private final Attributes attributes;
 
     public ScoreBuilder() {
