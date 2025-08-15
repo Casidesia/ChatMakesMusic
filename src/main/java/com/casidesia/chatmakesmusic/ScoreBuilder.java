@@ -15,6 +15,8 @@ public class ScoreBuilder {
     private static final Logger log = LoggerFactory.getLogger(ScoreBuilder.class);
     private static final ObjectFactory factory = new ObjectFactory();
 
+
+
     private static class Constants {
         private static final LocalDate d = LocalDate.now();
 
@@ -53,6 +55,9 @@ public class ScoreBuilder {
         score.setPartList(factory.createPartList());
 
         ScorePart scorePart = factory.createScorePart();
+        ScoreInstrument scoreInstrument = new ScoreInstrument();
+        scoreInstrument.setInstrumentName("Piano");
+        scorePart.getScoreInstrument().add(scoreInstrument);
         scorePart.setId("P1");
         PartName partName = factory.createPartName();
         partName.setValue("Music");
@@ -104,6 +109,13 @@ public class ScoreBuilder {
 
         attributes.setDivisions(BigDecimal.valueOf(currentAttributes.maxDivisionsPerMeasure));
         log.info("Division attribute set to: {}", attributes.getDivisions());
+    }
+    public void setInstrument(String instrumentString) {
+        ScoreInstrument scoreInstrument = factory.createScoreInstrument();
+        scoreInstrument.setInstrumentName(instrumentString);
+        ScorePart scorePart = (ScorePart) this.score.getPartList().getPartGroupOrScorePart().getFirst();
+        scorePart.getScoreInstrument().set(0,scoreInstrument);
+        score.getPartList().getPartGroupOrScorePart().set(0,scorePart);
     }
 
     public void addNote(ParsedNoteOrRest parsedNote) {

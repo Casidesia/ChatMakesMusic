@@ -3,6 +3,8 @@ package com.casidesia.chatmakesmusic;
 import com.casidesia.chatmakesmusic.data.ParsedNote;
 import com.casidesia.chatmakesmusic.data.ParsedRest;
 import com.casidesia.chatmakesmusic.enums.NoteLength;
+import org.audiveris.proxymusic.Instrument;
+import org.audiveris.proxymusic.ScoreInstrument;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.audiveris.proxymusic.Step;
 import org.slf4j.Logger;
@@ -31,6 +33,7 @@ public class StreamMusicParser {
     private final ScoreBuilder scoreBuilder;
     private final String inputFilename;
     private int currentOctave = Constants.DEFAULT_OCTAVE;
+    private String instrument = "Piano";
 
     public StreamMusicParser(String inputFilename) {
         scoreBuilder = new ScoreBuilder();
@@ -50,6 +53,7 @@ public class StreamMusicParser {
             case "Clock" -> {} // TODO: Implement or remove
             case "time" -> parseTime(tokens[1]);
             case "Octave" -> parseOctave(tokens[1]);
+            case "Instrument" -> parseInstrument(tokens[1]);
             default -> {
                 // Check if note
                 NoteLength noteLength = NoteLength.tryParse(tokens[0]);
@@ -59,6 +63,8 @@ public class StreamMusicParser {
             }
         }
     }
+
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                 INDIVIDUAL PARSING METHODS                                                     //
@@ -82,6 +88,10 @@ public class StreamMusicParser {
     private void parseOctave(String octaveString) {
         currentOctave = tryParseInt(octaveString, "Octave");
         log.info("Current octave variable set to: {}", currentOctave);
+    }
+    private void parseInstrument(String instrumentString) {
+        instrument = instrumentString;
+        scoreBuilder.setInstrument(instrumentString);
     }
 
     private int tryParseInt(String value, String fieldName) {

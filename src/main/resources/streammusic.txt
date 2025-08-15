@@ -1,5 +1,6 @@
 Clock:8/14/2025 10:08 AM
 time:4/4
+Instrument:Flute
 half:A
 half:D
 quarter:B
