@@ -2,6 +2,7 @@ package com.casidesia.chatmakesmusic;
 
 import com.casidesia.chatmakesmusic.data.AttributesHolder;
 import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
+import com.casidesia.chatmakesmusic.enums.Instrument;
 import org.audiveris.proxymusic.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,12 +111,31 @@ public class ScoreBuilder {
         attributes.setDivisions(BigDecimal.valueOf(currentAttributes.maxDivisionsPerMeasure));
         log.info("Division attribute set to: {}", attributes.getDivisions());
     }
-    public void setInstrument(String instrumentString) {
+
+    public void setInstrument(Instrument instrument) {
         ScoreInstrument scoreInstrument = factory.createScoreInstrument();
-        scoreInstrument.setInstrumentName(instrumentString);
+        scoreInstrument.setInstrumentName(instrument.getInstrumentName());
+        scoreInstrument.setInstrumentSound(instrument.getInstrumentSound());
+
+
+        Clef newClef = new Clef();
+        newClef.setSign(instrument.getSign());
+        newClef.setLine(instrument.getClefLine());
+        if (Instrument.needsClefOctaveChange(instrument))
+            newClef.setClefOctaveChange(BigInteger.valueOf(-1));
+
+        attributes.getClef().set(0,newClef);
+
+        Transpose transpose = new Transpose();
+        transpose.setChromatic(instrument.getChromatic());
+        transpose.setDiatonic(instrument.getDiatonic());
+        transpose.setOctaveChange(instrument.getOctaveChange());
+
+        attributes.getTranspose().add(transpose);
+
         ScorePart scorePart = (ScorePart) this.score.getPartList().getPartGroupOrScorePart().getFirst();
+        scorePart.getPartName().setValue(instrument.getInstrumentName());
         scorePart.getScoreInstrument().set(0,scoreInstrument);
-        score.getPartList().getPartGroupOrScorePart().set(0,scorePart);
     }
 
     public void addNote(ParsedNoteOrRest parsedNote) {

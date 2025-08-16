@@ -1,6 +1,6 @@
 Clock:8/14/2025 10:08 AM
 time:4/4
-Instrument:Flute
+Instrument:Acoustic Guitar
 half:A
 half:D
 quarter:B
@@ -10,19 +10,19 @@ whole:F
 eighth:G
 quarter:C
 half:B
-Octave:4
+Octave:7
 half:A
 Octave:4
 half:G
 Octave:3
 eighth:F
 half:F
-Octave:5
+Octave:1
 16th:B
 16th:D
 half:D
 16th:B
 eighth:E
-Octave:4
+Octave:2
 eighth:B
 whole:C

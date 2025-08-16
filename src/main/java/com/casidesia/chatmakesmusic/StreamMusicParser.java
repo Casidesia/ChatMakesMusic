@@ -2,8 +2,8 @@ package com.casidesia.chatmakesmusic;
 
 import com.casidesia.chatmakesmusic.data.ParsedNote;
 import com.casidesia.chatmakesmusic.data.ParsedRest;
+import com.casidesia.chatmakesmusic.enums.Instrument;
 import com.casidesia.chatmakesmusic.enums.NoteLength;
-import org.audiveris.proxymusic.Instrument;
 import org.audiveris.proxymusic.ScoreInstrument;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.audiveris.proxymusic.Step;
@@ -90,8 +90,8 @@ public class StreamMusicParser {
         log.info("Current octave variable set to: {}", currentOctave);
     }
     private void parseInstrument(String instrumentString) {
-        instrument = instrumentString;
-        scoreBuilder.setInstrument(instrumentString);
+        Instrument instrument = Instrument.tryParse(instrumentString);
+        scoreBuilder.setInstrument(instrument);
     }
 
     private int tryParseInt(String value, String fieldName) {
