@@ -36,7 +36,7 @@ public class DataGenerator {
             Random rand = new Random();
             int choice = rand.nextInt(1,21);
             if (choice==1)
-                writer.println("Octave:" + rand.nextInt(1,9));
+                writer.println("Octave:" + rand.nextInt(3,7));
             else {
                 int restOrNote = rand.nextInt(1,21);
                 if(restOrNote == 1){
