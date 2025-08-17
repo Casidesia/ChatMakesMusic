@@ -8,7 +8,7 @@ public class ChatMakesMusic {
 
 
     public static void main(String[] args) throws IOException, Marshalling.MarshallingException {
-        new ChatsSongPrinter("output/testFile" + System.currentTimeMillis() + ".musicxml")
+        new ChatsSongPrinter("output/ChatsSong" + System.currentTimeMillis() + ".musicxml")
             .printScoreToFile(new StreamMusicParser(args[0]).parseFile());
     }
 }

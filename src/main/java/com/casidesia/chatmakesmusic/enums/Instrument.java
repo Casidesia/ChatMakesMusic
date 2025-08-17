@@ -5,6 +5,9 @@ import org.audiveris.proxymusic.ClefSign;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public enum Instrument {
     FIVE_STR_ELEC_BASS("5-str. Electric Bass","pluck.bass.electric", 0,ClefSign.F, 4, 0,0,-1),
@@ -65,6 +68,11 @@ public enum Instrument {
     private final int diatonic;
     private final int chromatic;
     private final int OctaveChange;
+
+    private static final List<Instrument> VALUES =
+            Collections.unmodifiableList(Arrays.asList(values()));
+    private static final int SIZE = VALUES.size();
+    private static final Random RANDOM = new Random();
 
 
     Instrument(String instrumentName, String instrumentSound, int keyFifths, ClefSign sign, int clefLine, int diatonic, int chromatic, int octaveChange) {
@@ -134,5 +142,10 @@ public enum Instrument {
                 ", chromatic=" + chromatic +
                 ", OctaveChange=" + OctaveChange +
                 '}';
+    }
+    public static Instrument randomInstrument()  {
+
+        Instrument instrument = VALUES.get(RANDOM.nextInt(SIZE));
+        return instrument;
     }
 }
