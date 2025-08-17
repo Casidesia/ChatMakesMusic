@@ -10,20 +10,13 @@ import java.math.BigInteger;
 public class AttributesHolder {
     private static final ObjectFactory factory = new ObjectFactory();
 
-    private ClefSign clefSign;
     private int keyFifths;
     private int timeSignatureUpper;
     private int timeSignatureLower;
     private int divisions;
 
-    boolean clefChanged;
     boolean keyChanged;
     boolean timeChanged;
-
-    public void setClefSign(ClefSign clefSign) {
-        this.clefSign = clefSign;
-        clefChanged = true;
-    }
 
     public void setKeyFifths(int keyFifths) {
         this.keyFifths = keyFifths;
@@ -49,13 +42,6 @@ public class AttributesHolder {
 
     public Attributes getCurrentAttributes() {
         Attributes attributes = factory.createAttributes();
-
-        if (clefChanged) {
-            Clef clef = factory.createClef();
-            clef.setSign(clefSign);
-            attributes.getClef().add(clef);
-            clefChanged = false;
-        }
 
         if (keyChanged) {
             Key key = factory.createKey();

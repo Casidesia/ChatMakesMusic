@@ -25,20 +25,18 @@ public class ScoreBuilder {
         private static final String COMPOSER = "Casidesia's Chat (" + d + ")";
     }
 
-    // TODO: DELETE THIS
-    private static class CurrentAttributes {
-        private ScorePartwise.Part.Measure currentMeasure;
-        private int currentMeasureNum;
-        private int currentMeasureDivisions;
-        private int maxDivisionsPerMeasure;
-    }
 
     // Global values, initialized in constructor
+    private final Attributes initialAttributes;
     private final ScorePartwise score;
     private final ScorePartwise.Part part;
-    private final CurrentAttributes currentAttributes = new CurrentAttributes();
-    private final AttributesHolder attributesBuilder = new AttributesHolder();
-    private final Attributes attributes;
+    private final AttributesHolder attributesHolder = new AttributesHolder();
+
+    // Measure tracking
+    private ScorePartwise.Part.Measure currentMeasure;
+    private int currentMeasureNum;
+    private int currentMeasureDivisions;
+    private int maxDivisionsPerMeasure;
 
     public ScoreBuilder() {
         this(Constants.SONG_TITLE, Constants.COMPOSER);
@@ -56,9 +54,10 @@ public class ScoreBuilder {
         score.setPartList(factory.createPartList());
 
         ScorePart scorePart = factory.createScorePart();
-        ScoreInstrument scoreInstrument = new ScoreInstrument();
-        scoreInstrument.setInstrumentName("Piano");
-        scorePart.getScoreInstrument().add(scoreInstrument);
+
+//        ScoreInstrument scoreInstrument = new ScoreInstrument();
+//        scoreInstrument.setInstrumentName("Piano");
+//        scorePart.getScoreInstrument().add(scoreInstrument);
         scorePart.setId("P1");
         PartName partName = factory.createPartName();
         partName.setValue("Music");
@@ -69,47 +68,29 @@ public class ScoreBuilder {
         part.setId(scorePart);
         score.getPart().add(part);
 
-        attributes = factory.createAttributes();
-        Key key = factory.createKey();
-        key.setFifths(BigInteger.ZERO);
-        log.info("Current fifths for key: {}", key.getFifths().toString());
-
-        Clef clef = factory.createClef();
-        clef.setSign(ClefSign.G);
-        log.info("Current set clef sign: {}", clef.getSign().toString());
-
-        attributes.getKey().add(key);
-        attributes.getClef().add(clef);
-
-        log.info("Attribute for key set to: {} fifths.", attributes.getKey().getFirst().getFifths().toString());
-        log.info("Attribute for Clef set to: {}", attributes.getClef().getFirst().getSign().toString());
-
-        currentAttributes.currentMeasure = createMeasure();
+        attributesHolder.setKeyFifths(0);
+        currentMeasure = createMeasure();
+        initialAttributes = (Attributes)currentMeasure.getNoteOrBackupOrForward().getFirst();
+        setInstrument(Instrument.PIANO);
     }
 
     private ScorePartwise.Part.Measure createMeasure() {
         ScorePartwise.Part.Measure measure = factory.createScorePartwisePartMeasure();
-        measure.setNumber(String.valueOf(++currentAttributes.currentMeasureNum));
-        measure.getNoteOrBackupOrForward().add(attributes);
+        measure.setNumber(String.valueOf(++currentMeasureNum));
+        measure.getNoteOrBackupOrForward().add(attributesHolder.getCurrentAttributes());
         part.getMeasure().add(measure);
+        maxDivisionsPerMeasure = attributesHolder.getDivisions();
         return measure;
     }
 
     public void setTimeSignature(int timeSignatureUpper, int timeSignatureLower) {
-        Time timeSignature = factory.createTime();
-
-        timeSignature.getTimeSignature().add(factory.createTimeBeats(String.valueOf(timeSignatureUpper)));
-        timeSignature.getTimeSignature().add(factory.createTimeBeatType(String.valueOf(timeSignatureLower)));
-        log.info("Time Signature set to: {}/{}", timeSignature.getTimeSignature().get(0).getValue(), timeSignature.getTimeSignature().get(1).getValue());
-
-        attributes.getTime().add(timeSignature);
-        log.info("attributes Time Signature set to: {}/{}", attributes.getTime().getLast().getTimeSignature().get(0).getValue(), attributes.getTime().getLast().getTimeSignature().get(1).getValue());
-        //currentAttributes.currentMeasure.getNoteOrBackupOrForward().add
-        currentAttributes.maxDivisionsPerMeasure = timeSignatureUpper * timeSignatureLower;
-        log.info("Current total divisions per measure: {}", currentAttributes.maxDivisionsPerMeasure);
-
-        attributes.setDivisions(BigDecimal.valueOf(currentAttributes.maxDivisionsPerMeasure));
-        log.info("Division attribute set to: {}", attributes.getDivisions());
+        if (currentMeasureNum == 1) {
+            Time timeSignature = factory.createTime();
+            timeSignature.getTimeSignature().add(factory.createTimeBeats(String.valueOf(timeSignatureUpper)));
+            timeSignature.getTimeSignature().add(factory.createTimeBeatType(String.valueOf(timeSignatureLower)));
+            initialAttributes.getTime().add(timeSignature);
+        } else
+            attributesHolder.setTime(timeSignatureUpper, timeSignatureLower);
     }
 
     public void setInstrument(Instrument instrument) {
@@ -117,57 +98,52 @@ public class ScoreBuilder {
         scoreInstrument.setInstrumentName(instrument.getInstrumentName());
         scoreInstrument.setInstrumentSound(instrument.getInstrumentSound());
 
-
         Clef newClef = new Clef();
         newClef.setSign(instrument.getSign());
         newClef.setLine(instrument.getClefLine());
         if (Instrument.needsClefOctaveChange(instrument))
             newClef.setClefOctaveChange(BigInteger.valueOf(-1));
 
-        attributes.getClef().set(0,newClef);
+        initialAttributes.getClef().clear();
+        initialAttributes.getClef().add(newClef);
 
         Transpose transpose = new Transpose();
         transpose.setChromatic(instrument.getChromatic());
         transpose.setDiatonic(instrument.getDiatonic());
         transpose.setOctaveChange(instrument.getOctaveChange());
 
-        attributes.getTranspose().add(transpose);
+        initialAttributes.getTranspose().add(transpose);
 
         ScorePart scorePart = (ScorePart) this.score.getPartList().getPartGroupOrScorePart().getFirst();
         scorePart.getPartName().setValue(instrument.getInstrumentName());
-        scorePart.getScoreInstrument().set(0,scoreInstrument);
+        scorePart.getScoreInstrument().clear();
+        scorePart.getScoreInstrument().add(scoreInstrument);
     }
 
     public void addNote(ParsedNoteOrRest parsedNote) {
         log.info("Current parsed note: {}", parsedNote);
 
-
-        if(currentAttributes.maxDivisionsPerMeasure < currentAttributes.currentMeasureDivisions + parsedNote.getDuration()) {
-            int finishCurrentMeasure = currentAttributes.maxDivisionsPerMeasure - currentAttributes.currentMeasureDivisions;
+        if (maxDivisionsPerMeasure < currentMeasureDivisions + parsedNote.getDuration()) {
+            int finishCurrentMeasure = maxDivisionsPerMeasure - currentMeasureDivisions;
             int firstNoteOfNewMeasure = parsedNote.getDuration() - finishCurrentMeasure ;
 
             Note finishMeasureNote = parsedNote.toXmlNote();
             finishMeasureNote.setDuration(BigDecimal.valueOf(finishCurrentMeasure));
-            currentAttributes.currentMeasure.getNoteOrBackupOrForward().add(finishMeasureNote);
+            currentMeasure.getNoteOrBackupOrForward().add(finishMeasureNote);
 
-            currentAttributes.currentMeasure = createMeasure();
-
+            currentMeasure = createMeasure();
 
             Note newMeasureNote = parsedNote.toXmlNote();
             newMeasureNote.setDuration(BigDecimal.valueOf(finishCurrentMeasure));
-            currentAttributes.currentMeasure.getNoteOrBackupOrForward().add(newMeasureNote);
+            currentMeasure.getNoteOrBackupOrForward().add(newMeasureNote);
 
-            currentAttributes.currentMeasureDivisions = firstNoteOfNewMeasure;
+            currentMeasureDivisions = firstNoteOfNewMeasure;
 
-        }else {
-            currentAttributes.currentMeasure.getNoteOrBackupOrForward().add(parsedNote.toXmlNote());
-            currentAttributes.currentMeasureDivisions += parsedNote.getDuration();
-            log.info("Current Measure Divisions after addition: {}", currentAttributes.currentMeasureDivisions);
+        } else {
+            currentMeasure.getNoteOrBackupOrForward().add(parsedNote.toXmlNote());
+            currentMeasureDivisions += parsedNote.getDuration();
+            log.info("Current Measure Divisions after addition: {}", currentMeasureDivisions);
         }
-
-
-
-
     }
 
     public ScorePartwise getScore() {
