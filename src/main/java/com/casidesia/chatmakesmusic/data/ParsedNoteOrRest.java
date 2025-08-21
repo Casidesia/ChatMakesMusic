@@ -4,5 +4,6 @@ import org.audiveris.proxymusic.Note;
 
 public interface ParsedNoteOrRest {
     Note toXmlNote();
+
     int getDuration();
 }

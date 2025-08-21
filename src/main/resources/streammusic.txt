@@ -1,5 +1,5 @@
 time:4/4
-Instrument:Piano
+
 eighth:G
 half:A
 eighth:E

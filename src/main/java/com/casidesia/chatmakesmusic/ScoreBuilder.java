@@ -15,23 +15,11 @@ import java.time.LocalDate;
 public class ScoreBuilder {
     private static final Logger log = LoggerFactory.getLogger(ScoreBuilder.class);
     private static final ObjectFactory factory = new ObjectFactory();
-
-
-
-    private static class Constants {
-        private static final LocalDate d = LocalDate.now();
-
-        private static final String SONG_TITLE = "Chat's Song (" + d + ")";
-        private static final String COMPOSER = "Casidesia's Chat (" + d + ")";
-    }
-
-
     // Global values, initialized in constructor
     private final Attributes initialAttributes;
     private final ScorePartwise score;
     private final ScorePartwise.Part part;
     private final AttributesHolder attributesHolder = new AttributesHolder();
-
     // Measure tracking
     private ScorePartwise.Part.Measure currentMeasure;
     private int currentMeasureNum;
@@ -70,7 +58,7 @@ public class ScoreBuilder {
 
         attributesHolder.setKeyFifths(0);
         currentMeasure = createMeasure();
-        initialAttributes = (Attributes)currentMeasure.getNoteOrBackupOrForward().getFirst();
+        initialAttributes = (Attributes) currentMeasure.getNoteOrBackupOrForward().getFirst();
         setInstrument(Instrument.PIANO);
     }
 
@@ -125,7 +113,7 @@ public class ScoreBuilder {
 
         if (maxDivisionsPerMeasure < currentMeasureDivisions + parsedNote.getDuration()) {
             int finishCurrentMeasure = maxDivisionsPerMeasure - currentMeasureDivisions;
-            int firstNoteOfNewMeasure = parsedNote.getDuration() - finishCurrentMeasure ;
+            int firstNoteOfNewMeasure = parsedNote.getDuration() - finishCurrentMeasure;
 
             Note finishMeasureNote = parsedNote.toXmlNote();
             finishMeasureNote.setDuration(BigDecimal.valueOf(finishCurrentMeasure));
@@ -148,5 +136,12 @@ public class ScoreBuilder {
 
     public ScorePartwise getScore() {
         return score;
+    }
+
+    private static class Constants {
+        private static final LocalDate d = LocalDate.now();
+
+        private static final String SONG_TITLE = "Chat's Song (" + d + ")";
+        private static final String COMPOSER = "Casidesia's Chat (" + d + ")";
     }
 }

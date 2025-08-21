@@ -1,22 +1,22 @@
 package com.casidesia.chatmakesmusic.data;
 
 import com.casidesia.chatmakesmusic.enums.NoteLength;
-import org.audiveris.proxymusic.*;
+import org.audiveris.proxymusic.Attributes;
+import org.audiveris.proxymusic.Key;
+import org.audiveris.proxymusic.ObjectFactory;
+import org.audiveris.proxymusic.Time;
 
-import java.lang.String;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class AttributesHolder {
     private static final ObjectFactory factory = new ObjectFactory();
-
+    boolean keyChanged;
+    boolean timeChanged;
     private int keyFifths;
     private int timeSignatureUpper;
     private int timeSignatureLower;
     private int divisions;
-
-    boolean keyChanged;
-    boolean timeChanged;
 
     public void setKeyFifths(int keyFifths) {
         this.keyFifths = keyFifths;

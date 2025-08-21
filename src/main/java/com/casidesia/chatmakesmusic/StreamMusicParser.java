@@ -4,7 +4,6 @@ import com.casidesia.chatmakesmusic.data.ParsedNote;
 import com.casidesia.chatmakesmusic.data.ParsedRest;
 import com.casidesia.chatmakesmusic.enums.Instrument;
 import com.casidesia.chatmakesmusic.enums.NoteLength;
-import org.audiveris.proxymusic.ScoreInstrument;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.audiveris.proxymusic.Step;
 import org.slf4j.Logger;
@@ -18,22 +17,9 @@ import java.util.List;
 
 public class StreamMusicParser {
     private static final Logger log = LoggerFactory.getLogger(StreamMusicParser.class);
-
-    // Parsing-related constants
-    private static class Constants {
-        private static final List<String> STEPS = Arrays.stream(Step.values()).map(Step::name).toList();
-        private static final String REST = "rest";
-        private static final String TIME_SIGNATURE_DELIMITER = "/";
-        private static final String LINE_DELIMITER = ":";
-
-        private static final int DEFAULT_OCTAVE = 4;
-    }
-
-
     private final ScoreBuilder scoreBuilder;
     private final String inputFilename;
     private int currentOctave = Constants.DEFAULT_OCTAVE;
-    private String instrument = "Piano";
 
     public StreamMusicParser(String inputFilename) {
         scoreBuilder = new ScoreBuilder();
@@ -51,6 +37,7 @@ public class StreamMusicParser {
         String[] tokens = line.split(Constants.LINE_DELIMITER);
         switch (tokens[0]) {
             case "Clock" -> {} // TODO: Implement or remove
+            case "" -> {}
             case "time" -> parseTime(tokens[1]);
             case "Octave" -> parseOctave(tokens[1]);
             case "Instrument" -> parseInstrument(tokens[1]);
@@ -64,11 +51,7 @@ public class StreamMusicParser {
         }
     }
 
-
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                 INDIVIDUAL PARSING METHODS                                                     //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void parseTime(String timeSignatureString) {
         String[] tokens = timeSignatureString.split(Constants.TIME_SIGNATURE_DELIMITER);
         log.info("Current tokens for parsed time signature string {}", Arrays.stream(tokens).toList());
@@ -85,10 +68,14 @@ public class StreamMusicParser {
         scoreBuilder.setTimeSignature(timeSignatureUpper, timeSignatureLower);
     }
 
+
+    /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                 INDIVIDUAL PARSING METHODS                                                     //
     private void parseOctave(String octaveString) {
         currentOctave = tryParseInt(octaveString, "Octave");
         log.info("Current octave variable set to: {}", currentOctave);
     }
+
     private void parseInstrument(String instrumentString) {
         Instrument instrument = Instrument.tryParse(instrumentString);
         scoreBuilder.setInstrument(instrument);
@@ -110,22 +97,31 @@ public class StreamMusicParser {
             ParsedRest parsedRest = new ParsedRest(noteLength);
             scoreBuilder.addNote(parsedRest);
             log.info("Rest added: {}", parsedRest.getDuration());
-        }
-        else if (Constants.STEPS.contains(pitchOrRestString)) {
+        } else if (Constants.STEPS.contains(pitchOrRestString)) {
             ParsedNote parsedNote = new ParsedNote(noteLength, Step.fromValue(pitchOrRestString), currentOctave);
             scoreBuilder.addNote(parsedNote);
             log.info("Note added: {}", parsedNote);
-        }
-        else
+        } else
             logAndThrowIllegalArgument("Invalid note: " + pitchOrRestString);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                 EXCEPTION HANDLING                                                             //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void logAndThrowIllegalArgument(String logString) {
         IllegalArgumentException e = new IllegalArgumentException(logString);
         log.error("Error parsing input file: {}", inputFilename, e);
         throw e;
+    }
+
+    /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                 EXCEPTION HANDLING                                                             //
+
+    // Parsing-related constants
+    private static class Constants {
+        private static final List<String> STEPS = Arrays.stream(Step.values()).map(Step::name).toList();
+        private static final String REST = "rest";
+        private static final String TIME_SIGNATURE_DELIMITER = "/";
+        private static final String LINE_DELIMITER = ":";
+
+        private static final int DEFAULT_OCTAVE = 4;
     }
 }

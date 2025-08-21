@@ -31,3 +31,4 @@ bin/
 
 ### Project Files ###
 !/target/
+!/.idea/material_theme_project_new.xml
