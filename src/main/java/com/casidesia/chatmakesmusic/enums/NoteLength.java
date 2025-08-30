@@ -4,10 +4,7 @@ import org.audiveris.proxymusic.Note;
 import org.audiveris.proxymusic.NoteType;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public enum NoteLength {
     WHOLE("whole", 16),
@@ -18,8 +15,7 @@ public enum NoteLength {
 
     private final String text;
     private final int duration;
-    private static final List<NoteLength> VALUES =
-            Collections.unmodifiableList(Arrays.asList(values()));
+    private static final List<NoteLength> VALUES = List.of(values());
     private static final int SIZE = VALUES.size();
     private static final Random RANDOM = new Random();
 
@@ -29,7 +25,7 @@ public enum NoteLength {
     }
 
     public static NoteLength tryParse(String name) {
-        return Arrays.stream(NoteLength.values())
+        return VALUES.stream()
             .filter(length -> length.text.equalsIgnoreCase(name))
             .findFirst()
             .orElse(null);
@@ -39,11 +35,24 @@ public enum NoteLength {
         return duration;
     }
 
+    public String getText() {
+        return text;
+    }
+
     public void addDurationAndTypeToNote(Note note) {
         note.setDuration(BigDecimal.valueOf(duration));
         NoteType type = new NoteType();
         type.setValue(text);
         note.setType(type);
+    }
+
+    // Return the NoteLength with duration closest to (but not exceeding) the parameter duration
+    public static NoteLength findNextShortestNoteLength(int duration) {
+        return VALUES.stream()
+            .sorted(Comparator.comparingInt(NoteLength::getDuration).reversed())
+            .filter(nl -> nl.getDuration() <= duration)
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
@@ -52,9 +61,6 @@ public enum NoteLength {
                 "parsedName='" + text + '\'' +
                 ", duration=" + duration +
                 '}';
-    }
-    String getText(){
-        return this.text;
     }
 
     public static String randomLength()  {

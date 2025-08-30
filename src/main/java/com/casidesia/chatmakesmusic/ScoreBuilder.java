@@ -3,7 +3,7 @@ package com.casidesia.chatmakesmusic;
 import com.casidesia.chatmakesmusic.data.AttributesHolder;
 import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
 import com.casidesia.chatmakesmusic.enums.Instrument;
-import com.casidesia.chatmakesmusic.enums.NoteLength;
+import com.casidesia.chatmakesmusic.util.NoteUtil;
 import org.audiveris.proxymusic.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,16 +117,25 @@ public class ScoreBuilder {
             int finishCurrentMeasure = maxDivisionsPerMeasure - currentMeasureDivisions;
             int firstNoteOfNewMeasure = parsedNote.getDuration() - finishCurrentMeasure;
 
-            if (finishCurrentMeasure > 0) {
+            boolean needsNewNote = finishCurrentMeasure > 0;
+            if (needsNewNote) {
                 Note finishMeasureNote = parsedNote.toXmlNote();
-                finishMeasureNote.setDuration(BigDecimal.valueOf(finishCurrentMeasure));
+                NoteUtil.changeNoteDuration(finishMeasureNote, finishCurrentMeasure);
+                Tie tie = new Tie();
+                tie.setType(StartStop.START);
+                finishMeasureNote.getTie().add(tie);
                 currentMeasure.getNoteOrBackupOrForward().add(finishMeasureNote);
             }
 
             currentMeasure = createMeasure();
 
             Note newMeasureNote = parsedNote.toXmlNote();
-            newMeasureNote.setDuration(BigDecimal.valueOf(firstNoteOfNewMeasure));
+            NoteUtil.changeNoteDuration(newMeasureNote, firstNoteOfNewMeasure);
+            if (needsNewNote) {
+                Tie tie = new Tie();
+                tie.setType(StartStop.STOP);
+                newMeasureNote.getTie().add(tie);
+            }
             currentMeasure.getNoteOrBackupOrForward().add(newMeasureNote);
 
             currentMeasureDivisions = firstNoteOfNewMeasure;
