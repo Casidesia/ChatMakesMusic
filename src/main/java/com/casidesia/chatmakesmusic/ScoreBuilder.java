@@ -75,8 +75,10 @@ public class ScoreBuilder {
             timeSignature.getTimeSignature().add(factory.createTimeBeats(String.valueOf(timeSignatureUpper)));
             timeSignature.getTimeSignature().add(factory.createTimeBeatType(String.valueOf(timeSignatureLower)));
             initialAttributes.getTime().add(timeSignature);
+
             attributesHolder.setInitialTime(timeSignatureUpper, timeSignatureLower);
-            initialAttributes.setDivisions(BigDecimal.valueOf(attributesHolder.getDivisions()));
+            maxDivisionsPerMeasure = attributesHolder.getDivisions();
+            initialAttributes.setDivisions(BigDecimal.valueOf(maxDivisionsPerMeasure));
         } else
             attributesHolder.setTime(timeSignatureUpper, timeSignatureLower);
     }
@@ -115,18 +117,19 @@ public class ScoreBuilder {
             int finishCurrentMeasure = maxDivisionsPerMeasure - currentMeasureDivisions;
             int firstNoteOfNewMeasure = parsedNote.getDuration() - finishCurrentMeasure;
 
-            Note finishMeasureNote = parsedNote.toXmlNote();
-            finishMeasureNote.setDuration(BigDecimal.valueOf(finishCurrentMeasure));
-            currentMeasure.getNoteOrBackupOrForward().add(finishMeasureNote);
+            if (finishCurrentMeasure > 0) {
+                Note finishMeasureNote = parsedNote.toXmlNote();
+                finishMeasureNote.setDuration(BigDecimal.valueOf(finishCurrentMeasure));
+                currentMeasure.getNoteOrBackupOrForward().add(finishMeasureNote);
+            }
 
             currentMeasure = createMeasure();
 
             Note newMeasureNote = parsedNote.toXmlNote();
-            newMeasureNote.setDuration(BigDecimal.valueOf(finishCurrentMeasure));
+            newMeasureNote.setDuration(BigDecimal.valueOf(firstNoteOfNewMeasure));
             currentMeasure.getNoteOrBackupOrForward().add(newMeasureNote);
 
             currentMeasureDivisions = firstNoteOfNewMeasure;
-
         } else {
             currentMeasure.getNoteOrBackupOrForward().add(parsedNote.toXmlNote());
             currentMeasureDivisions += parsedNote.getDuration();
