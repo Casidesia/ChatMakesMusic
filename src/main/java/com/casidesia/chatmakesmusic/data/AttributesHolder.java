@@ -36,6 +36,12 @@ public class AttributesHolder {
         timeChanged = true;
     }
 
+    // Updates divisions without causing regeneration of time signature
+    // Should only be called when working within the first measure
+    public void setInitialTime(int timeSignatureUpper, int timeSignatureLower) {
+        divisions = NoteLength.WHOLE.getDuration() * timeSignatureUpper / timeSignatureLower;
+    }
+
     public int getDivisions() {
         return divisions;
     }

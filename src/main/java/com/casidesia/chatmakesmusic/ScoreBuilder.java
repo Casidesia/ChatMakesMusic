@@ -3,6 +3,7 @@ package com.casidesia.chatmakesmusic;
 import com.casidesia.chatmakesmusic.data.AttributesHolder;
 import com.casidesia.chatmakesmusic.data.ParsedNoteOrRest;
 import com.casidesia.chatmakesmusic.enums.Instrument;
+import com.casidesia.chatmakesmusic.enums.NoteLength;
 import org.audiveris.proxymusic.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +44,6 @@ public class ScoreBuilder {
 
         ScorePart scorePart = factory.createScorePart();
 
-//        ScoreInstrument scoreInstrument = new ScoreInstrument();
-//        scoreInstrument.setInstrumentName("Piano");
-//        scorePart.getScoreInstrument().add(scoreInstrument);
         scorePart.setId("P1");
         PartName partName = factory.createPartName();
         partName.setValue("Music");
@@ -77,6 +75,8 @@ public class ScoreBuilder {
             timeSignature.getTimeSignature().add(factory.createTimeBeats(String.valueOf(timeSignatureUpper)));
             timeSignature.getTimeSignature().add(factory.createTimeBeatType(String.valueOf(timeSignatureLower)));
             initialAttributes.getTime().add(timeSignature);
+            attributesHolder.setInitialTime(timeSignatureUpper, timeSignatureLower);
+            initialAttributes.setDivisions(BigDecimal.valueOf(attributesHolder.getDivisions()));
         } else
             attributesHolder.setTime(timeSignatureUpper, timeSignatureLower);
     }
